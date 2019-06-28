@@ -7,7 +7,8 @@ program.version('0.0.1');
 program
     .option('-b, --bitcoin <number>', 'Exact amount of bitcoin in your Bittrex wallet', parseFloat)
     .option('-s, --symbol <symbol>', 'Symbol of token to purchase with full bitcoin amount')
-    .option('-r, --requestVerificationToken <value>', 'Token parsed from bittrex.com');
+    .option('-r, --requestVerificationToken <value>', 'Token parsed from bittrex.com')
+    .option('-c, --cookies <value>', 'Cookies parsed from bittrex.com');
 program.parse(process.argv);
 if (program.symbol === undefined) {
     console.error('Symbol must be passed with -s <symbol> or --symbol <symbol>');
@@ -21,6 +22,10 @@ if (program.requestVerificationToken === undefined) {
     console.error('requestVerificationToken must be passed with -r <value> or --requestVerificationToken <value>');
     process.exit();
 }
-const bittrexApi = new BittrexApi_1.BittrexApi(program.requestVerificationToken);
-bittrexApi.getTokenBidRate(program.symbol).then(bidRate => bittrexApi.buyToken(program.bitcoin, bidRate, program.symbol));
+if (program.cookies === undefined) {
+    console.error('You must pass the request cookies with -c <value> or --cookies <value>');
+    process.exit();
+}
+const bittrexApi = new BittrexApi_1.BittrexApi(program.cookies, program.requestVerificationToken);
+bittrexApi.getTokenBidRate(program.symbol).then(bidRate => bittrexApi.buyToken(program.bitcoin, bidRate.toFixed(8), program.symbol));
 //# sourceMappingURL=main.js.map
