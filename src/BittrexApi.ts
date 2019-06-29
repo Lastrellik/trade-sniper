@@ -1,15 +1,13 @@
 const axios = require('axios');
-const qs = require('qs');
-import curlirize from 'axios-curlirize';
-curlirize(axios);
+const CryptoJS = require('crypto-js');
 
 export class BittrexApi {
-  private requestVerificationToken: string;
-  private cookies: string;
+  private apiKey: string;
+  private apiSecret: string;
 
-  constructor(cookies: string, requestVerificationToken: string) {
-    this.requestVerificationToken = requestVerificationToken;
-    this.cookies = cookies;
+  constructor(apiKey: string, apiSecret: string){
+    this.apiKey = apiKey;
+    this.apiSecret = apiSecret;
   }
 
   public async getTokenBidRate(tokenSymbol: string) {
@@ -25,36 +23,41 @@ export class BittrexApi {
   }
 
   public async buyToken(bitcoinBalance: string, tokenBidRate: number,  symbol: string) {
+    const timestamp = new Date().getTime();
+    const fullRequestUri = 'https://api.bittrex.com/v3/orders';
+    const httpRequestMethod = 'POST';
     const amountOfToken = this.calculateAmountOfToken(+bitcoinBalance, tokenBidRate);
-    axios.interceptors.request.use(request => {
-        console.log('Starting Request', request)
-        return request
-    })
     const data = {
-      'MarketName': 'BTC-' + symbol,
-      'OrderType': 'LIMIT',
-      'Quantity': amountOfToken,
-      'Rate': tokenBidRate,
-      'TimeInEffect': 'IMMEDIATE_OR_CANCEL',
-      '__RequestVerificationToken': this.requestVerificationToken
+      "marketSymbol": symbol + "-BTC",
+      "direction": "BUY",
+      "type": "MARKET",
+      "quantity": amountOfToken,
+      "timeInForce": "IMMEDIATE_OR_CANCEL"
     }
+    const apiContentHash = this.getApiContentHash(JSON.stringify(data));
+    const headers = {
+      'Api-Key': this.apiKey,
+      'Api-Timestamp': timestamp,
+      'Api-Content-Hash': apiContentHash,
+      'Api-Signature': this.getApiSignature(timestamp, fullRequestUri, httpRequestMethod, apiContentHash) 
+    }
+    console.log(headers);
     await axios({
-      url: 'https://bittrex.com/api/v2.0/auth/market/TradeBuy',
-      method: 'post',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:67.0) Gecko/20100101 Firefox/67.0',
-        'Host': 'bittrex.com',
-        'Accept': 'application/json, text/javascript, */*; q=0.01',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Referer': 'https://bittrex.com/Market/Index?MarketName=BTC-' + symbol,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Connection': 'keep-alive',
-        'TE': 'Trailers',
-        'Cookie': this.cookies
-      },
-      data: qs.stringify(data)
-    }).then(console.log);
+      url: fullRequestUri,
+      method: httpRequestMethod,
+      headers: headers,
+      data: data
+    }).then(console.log).catch(err => console.log(err.response.data));
+  }
+
+  private getApiContentHash(content: string) {
+    return CryptoJS.SHA512(content).toString(CryptoJS.enc.Hex);
+  }
+
+  private getApiSignature(timestamp: number, fullRequestUri: string, httpRequestMethod: string, apiContentHash: string) {
+    const preSign = [timestamp.toString(), fullRequestUri, httpRequestMethod, apiContentHash, ''].join('');
+    console.log('presign', preSign)
+    return CryptoJS.HmacSHA512(preSign, this.apiSecret).toString(CryptoJS.enc.Hex);
   }
 
   private parsePriceRequest(jsonData: any, tokenSymbol: string) {
