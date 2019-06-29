@@ -34,5 +34,5 @@ if(program.secret === undefined) {
 
 const bittrexApi = new BittrexApi(program.apiKey, program.secret);
 
-bittrexApi.getTokenBidRate(program.symbol).then(bidRate => bittrexApi.buyToken(program.bitcoin, bidRate, program.symbol));
+bittrexApi.getTokenAskRate(program.symbol).then(askRate => bittrexApi.buyToken(program.bitcoin, askRate, program.symbol));
 

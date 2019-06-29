@@ -10,15 +10,14 @@ export class BittrexApi {
     this.apiSecret = apiSecret;
   }
 
-  public async getTokenBidRate(tokenSymbol: string) {
-    const hostUrl = 'https://bittrex.com/api/v2.0/pub/Markets/GetMarketSummaries';
+  public async getTokenAskRate(tokenSymbol: string) {
+    const hostUrl = 'https://api.bittrex.com/v3/markets/' + tokenSymbol + '-BTC/orderbook';
     let price;
-    const adjustmentAmount = 1.05
-    await axios.get(hostUrl).then(data => price = (+this.parsePriceRequest(data.data, tokenSymbol)) * adjustmentAmount);
+    await axios.get(hostUrl).then(data => price = +this.parsePriceRequest(data.data));
     return price.toFixed(8);
   }
 
-  public calculateAmountOfToken(bitcoinBalance: number, bidRate: number) {
+  public calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number) {
     return ((bitcoinBalance / bidRate) * .9975).toFixed(8);
   }
 
@@ -26,7 +25,7 @@ export class BittrexApi {
     const timestamp = new Date().getTime();
     const fullRequestUri = 'https://api.bittrex.com/v3/orders';
     const httpRequestMethod = 'POST';
-    const amountOfToken = this.calculateAmountOfToken(+bitcoinBalance, tokenBidRate);
+    const amountOfToken = this.calculateAmountOfTokenToBuy(+bitcoinBalance, tokenBidRate);
     const data = {
       "marketSymbol": symbol + "-BTC",
       "direction": "BUY",
@@ -60,7 +59,7 @@ export class BittrexApi {
     return CryptoJS.HmacSHA512(preSign, this.apiSecret).toString(CryptoJS.enc.Hex);
   }
 
-  private parsePriceRequest(jsonData: any, tokenSymbol: string) {
-    return jsonData.result.filter(x => x.Market.MarketName.includes('BTC-' + tokenSymbol.toUpperCase()))[0].Summary.Ask;
+  private parsePriceRequest(jsonData: any) {
+    return (jsonData.ask[0].rate * 1.03).toFixed(8);
   }
 }
