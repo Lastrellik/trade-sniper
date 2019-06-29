@@ -1,7 +1,9 @@
+import { ASK_RATE_OFFSET } from '../config';
+import { calculateAmountOfTokenToBuy } from '../utils';
 const axios = require('axios');
 const CryptoJS = require('crypto-js');
 
-export class BittrexApi {
+export class BittrexExchange {
   private apiKey: string;
   private apiSecret: string;
 
@@ -17,17 +19,13 @@ export class BittrexApi {
     return price.toFixed(8);
   }
 
-  public calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number) {
-    return ((bitcoinBalance / bidRate) * .9975).toFixed(8);
-  }
-
-  public async buyToken(bitcoinBalance: string, tokenBidRate: number,  symbol: string) {
+  public async buyToken(bitcoinBalance: number, tokenBidRate: number,  tokenSymbol: string) {
     const timestamp = new Date().getTime();
     const fullRequestUri = 'https://api.bittrex.com/v3/orders';
     const httpRequestMethod = 'POST';
-    const amountOfToken = this.calculateAmountOfTokenToBuy(+bitcoinBalance, tokenBidRate);
+    const amountOfToken = calculateAmountOfTokenToBuy(bitcoinBalance, tokenBidRate);
     const data = {
-      "marketSymbol": symbol + "-BTC",
+      "marketSymbol": tokenSymbol + "-BTC",
       "direction": "BUY",
       "type": "MARKET",
       "quantity": amountOfToken,
@@ -40,7 +38,6 @@ export class BittrexApi {
       'Api-Content-Hash': apiContentHash,
       'Api-Signature': this.getApiSignature(timestamp, fullRequestUri, httpRequestMethod, apiContentHash) 
     }
-    console.log(headers);
     await axios({
       url: fullRequestUri,
       method: httpRequestMethod,
@@ -60,6 +57,6 @@ export class BittrexApi {
   }
 
   private parsePriceRequest(jsonData: any) {
-    return (jsonData.ask[0].rate * 1.03).toFixed(8);
+    return (jsonData.ask[ASK_RATE_OFFSET].rate).toFixed(8);
   }
 }

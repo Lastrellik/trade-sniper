@@ -1,4 +1,4 @@
-import { BittrexApi } from './BittrexApi';
+import { BittrexExchange } from './exchange/BittrexExchange';
 const commander = require('commander');
 const program = new commander.Command();
 
@@ -32,7 +32,7 @@ if(program.secret === undefined) {
   process.exit();
 }
 
-const bittrexApi = new BittrexApi(program.apiKey, program.secret);
+const bittrexExchange = new BittrexExchange(program.apiKey, program.secret);
 
-bittrexApi.getTokenAskRate(program.symbol).then(askRate => bittrexApi.buyToken(program.bitcoin, askRate, program.symbol));
+bittrexExchange.getTokenAskRate(program.symbol).then(askRate => bittrexExchange.buyToken(program.bitcoin, askRate, program.symbol));
 
