@@ -1,11 +1,12 @@
 import { ASK_RATE_OFFSET } from '../config';
 import { calculateAmountOfTokenToBuy } from '../utils';
+import { IExchange } from './IExchange';
 const axios = require('axios');
 const CryptoJS = require('crypto-js');
 
-export class BittrexExchange {
-  private apiKey: string;
-  private apiSecret: string;
+export class BittrexExchange implements IExchange {
+  public apiKey: string;
+  public apiSecret: string;
 
   constructor(apiKey: string, apiSecret: string){
     this.apiKey = apiKey;

@@ -5,7 +5,8 @@ export class YobitExchange implements IExchange {
   public apiSecret: string;
 
   constructor(apiKey: string, apiSecret: string) {
-    console.log(apiKey, apiSecret);
+    this.apiKey = apiKey;
+    this.apiSecret = apiSecret;
     //IMPLEMENT ME
   }
 
@@ -15,7 +16,7 @@ export class YobitExchange implements IExchange {
     //IMPLEMENT ME
   }
 
-  public buyToken(bitcoinBalance: string, tokenBidRate: number, tokenSymbol: string) {
+  public buyToken(bitcoinBalance: number, tokenBidRate: number, tokenSymbol: string) {
     console.log(bitcoinBalance, tokenBidRate, tokenSymbol);
     //IMPLEMENT ME
   }
