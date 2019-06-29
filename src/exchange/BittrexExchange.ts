@@ -12,11 +12,11 @@ export class BittrexExchange {
     this.apiSecret = apiSecret;
   }
 
-  public async getTokenAskRate(tokenSymbol: string) {
+  public async getTokenAskRate(tokenSymbol: string): Promise<number> {
     const hostUrl = 'https://api.bittrex.com/v3/markets/' + tokenSymbol + '-BTC/orderbook';
     let price;
     await axios.get(hostUrl).then(data => price = +this.parsePriceRequest(data.data));
-    return price.toFixed(8);
+    return price;
   }
 
   public async buyToken(bitcoinBalance: number, tokenBidRate: number,  tokenSymbol: string) {
@@ -57,6 +57,6 @@ export class BittrexExchange {
   }
 
   private parsePriceRequest(jsonData: any) {
-    return (jsonData.ask[ASK_RATE_OFFSET].rate).toFixed(8);
+    return (+jsonData.ask[ASK_RATE_OFFSET].rate).toFixed(8);
   }
 }

@@ -1,4 +1,5 @@
-import { BittrexExchange } from './exchange/BittrexExchange';
+import { IExchange } from './exchange/IExchange';
+import { getExchange } from './exchange/ExchangeFactory';
 const commander = require('commander');
 const program = new commander.Command();
 
@@ -7,8 +8,9 @@ program.version('0.0.1');
 program
   .option('-b, --bitcoin <number>', 'Exact amount of bitcoin in your Bittrex wallet', parseFloat)
   .option('-s, --symbol <symbol>', 'Symbol of token to purchase with full bitcoin amount')
-  .option('-k, --apiKey <value>', 'Api Key from Bittrex.com')
-  .option('-S, --secret <value>', 'Api Secret from Bittrex.com');
+  .option('-k, --apiKey <value>', 'Api Key from the exchange')
+  .option('-S, --secret <value>', 'Api Secret from the exchange')
+  .option('-e, --exchange <value>', 'The name of the exchange');
 
 program.parse(process.argv);
 
@@ -28,11 +30,16 @@ if(program.apiKey === undefined) {
 }
 
 if(program.secret === undefined) {
-  console.error('You must pass the Bittrex API Secret with -s <value> or --secret <value>');
+  console.error('You must pass the exchange API Secret with -s <value> or --secret <value>');
   process.exit();
 }
 
-const bittrexExchange = new BittrexExchange(program.apiKey, program.secret);
+if(program.exchange === undefined) {
+  console.error('You must pass the exchange with -e <value> or --exchange <value>');
+  process.exit();
+}
 
-bittrexExchange.getTokenAskRate(program.symbol).then(askRate => bittrexExchange.buyToken(program.bitcoin, askRate, program.symbol));
+const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
+
+exchange.getTokenAskRate(program.symbol).then(askRate => exchange.buyToken(program.bitcoin, askRate, program.symbol));
 
