@@ -20,4 +20,12 @@ export class YobitExchange implements IExchange {
     console.log(bitcoinBalance, tokenBidRate, tokenSymbol);
     //IMPLEMENT ME
   }
+
+  public getAccountBalances(): Promise<any> {
+    return new Promise(resolve => resolve('ass'));
+  }
+
+  public getMarketSummaries(): Promise<any> {
+    return new Promise(resolve => resolve('ass'));
+  }
 }

@@ -47,6 +47,30 @@ export class BittrexExchange implements IExchange {
     }).then(console.log).catch(err => console.log(err.response.data));
   }
 
+  public async getAccountBalances(): Promise<any> {
+    const apiContentHash = this.getApiContentHash('');
+    const timestamp = new Date().getTime();
+    const fullRequestUri = 'https://api.bittrex.com/v3/balances';
+    const headers = {
+      'Api-Key': this.apiKey,
+      'Api-Timestamp': timestamp,
+      'Api-Content-Hash': apiContentHash,
+      'Api-Signature': this.getApiSignature(timestamp, fullRequestUri, 'GET', apiContentHash) 
+    }
+    await axios({
+      url: fullRequestUri,
+      method: 'GET',
+      headers
+    }).then(console.log).catch(err => console.log(err.response.data));
+  }
+
+  public async getMarketSummaries(): Promise<any> {
+    const requestUri = 'https://bittrex.com/api/v2.0/pub/markets/getMarketSummaries';
+    let summaries;
+    await axios(requestUri).then(response => summaries = response.data.result);
+    return summaries;
+  }
+
   private getApiContentHash(content: string) {
     return CryptoJS.SHA512(content).toString(CryptoJS.enc.Hex);
   }
