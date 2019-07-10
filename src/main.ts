@@ -41,5 +41,6 @@ if(program.exchange === undefined) {
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
 
-exchange.getTokenAskRate(program.symbol).then(askRate => exchange.buyToken(program.bitcoin, askRate, program.symbol));
+exchange.getTokenAskRate(program.symbol).then(console.log);
+//exchange.getTokenAskRate(program.symbol).then(askRate => exchange.buyToken(program.bitcoin, askRate, program.symbol));
 
