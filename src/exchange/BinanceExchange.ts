@@ -1,4 +1,5 @@
 import { IExchange } from './IExchange';
+import { calculateAmountOfTokenToBuy } from '../utils';
 
 export class BinanceExchange implements IExchange {
   public apiKey: string;
@@ -21,14 +22,22 @@ export class BinanceExchange implements IExchange {
         if(error) {
           console.log(error);
         }
-        resolve(+ticker[tokenSymbol.toUpperCase() + 'BTC']);
+        resolve(+(+ticker[tokenSymbol.toUpperCase() + 'BTC'] * 1.03).toFixed(8));
       });
     })
   }
 
   public async buyToken(bitcoinBalance: number, tokenBidRate: number,  tokenSymbol: string) {
-    console.log(bitcoinBalance, tokenBidRate, tokenSymbol);
-    //IMPLEMENT ME
+    const amountOfToken = Math.floor(+calculateAmountOfTokenToBuy(bitcoinBalance, tokenBidRate));
+    console.log('amountOfToken', amountOfToken);
+    console.log('tokenBidRate', tokenBidRate);
+    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, tokenBidRate, {type: 'MARKET'}, (response) => {
+      if(response !== null) {
+        console.log(response.body);
+      } else {
+        console.log('Purchase successful');
+      }
+    });
   }
 
   public async getAccountBalances(): Promise<any> {

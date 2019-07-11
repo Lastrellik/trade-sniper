@@ -28,7 +28,7 @@ export class BittrexExchange implements IExchange {
     const data = {
       "marketSymbol": tokenSymbol + "-BTC",
       "direction": "BUY",
-      "type": "LIMIT",
+      "type": "MARKET",
       "quantity": amountOfToken,
       "timeInForce": "IMMEDIATE_OR_CANCEL"
     }
