@@ -1,6 +1,6 @@
 import { ASK_RATE_OFFSET } from '../config';
-import { calculateAmountOfTokenToBuy } from '../utils';
 import { IExchange } from './IExchange';
+import {BID_PRECISION} from '../config';
 const axios = require('axios');
 const CryptoJS = require('crypto-js');
 
@@ -20,14 +20,53 @@ export class BittrexExchange implements IExchange {
     return price;
   }
 
-  public async buyToken(bitcoinBalance: number, tokenBidRate: number,  tokenSymbol: string) {
+  public async getAccountTokenBalance(tokenSymbol: string): Promise<number> {
+    console.log(tokenSymbol);
+    return new Promise(resolve => resolve(0));
+    //IMPLEMENT ME
+  }
+
+  public calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number): Promise<number> {
+    const BITCOIN_ADJUSTMENT = 0.9975;
+    return new Promise(resolve => resolve(+(((bitcoinBalance / bidRate) * BITCOIN_ADJUSTMENT).toFixed(BID_PRECISION))));
+  }
+
+  public async buyToken(amountOfToken: number, tokenBidRate: number,  tokenSymbol: string) {
+    console.log(tokenBidRate);
     const timestamp = new Date().getTime();
     const fullRequestUri = 'https://api.bittrex.com/v3/orders';
     const httpRequestMethod = 'POST';
-    const amountOfToken = calculateAmountOfTokenToBuy(bitcoinBalance, tokenBidRate);
     const data = {
       "marketSymbol": tokenSymbol + "-BTC",
       "direction": "BUY",
+      "type": "MARKET",
+      "quantity": amountOfToken,
+      "timeInForce": "IMMEDIATE_OR_CANCEL"
+    }
+    const apiContentHash = this.getApiContentHash(JSON.stringify(data));
+    const headers = {
+      'Api-Key': this.apiKey,
+      'Api-Timestamp': timestamp,
+      'Api-Content-Hash': apiContentHash,
+      'Api-Signature': this.getApiSignature(timestamp, fullRequestUri, httpRequestMethod, apiContentHash) 
+    }
+    await axios({
+      url: fullRequestUri,
+      method: httpRequestMethod,
+      headers: headers,
+      data: data
+    }).then(console.log).catch(err => console.log(err.response.data));
+  }
+
+  //TODO
+  public async sellToken(amountOfToken: number, askRate: number, tokenSymbol: string) {
+    console.log(askRate);
+    const timestamp = new Date().getTime();
+    const fullRequestUri = 'https://api.bittrex.com/v3/orders';
+    const httpRequestMethod = 'POST';
+    const data = {
+      "marketSymbol": tokenSymbol + "-BTC",
+      "direction": "SELL",
       "type": "MARKET",
       "quantity": amountOfToken,
       "timeInForce": "IMMEDIATE_OR_CANCEL"

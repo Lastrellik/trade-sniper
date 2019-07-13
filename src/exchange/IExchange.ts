@@ -2,7 +2,10 @@ export interface IExchange {
   apiKey: string; 
   apiSecret: string;
   getTokenAskRate(tokenSymbol: string): Promise<number>;
-  buyToken(bitcoinBalance: number, tokenBidRate: number, tokenSymbol: string);
+  getAccountTokenBalance(tokenSymbol: string): Promise<number>;
+  calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number): Promise<number>;
+  buyToken(amountOfToken: number, bidRate: number, tokenSymbol: string);
+  sellToken(amountOfToken: number, askRate: number, tokenSymbol: string);
   getAccountBalances(): Promise<any>;
   getMarketSummaries(): Promise<any>;
 }

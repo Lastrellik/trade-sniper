@@ -41,6 +41,15 @@ if(program.exchange === undefined) {
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
 
-//exchange.getTokenAskRate(program.symbol).then(console.log);
-exchange.getTokenAskRate(program.symbol).then(askRate => exchange.buyToken(program.bitcoin, askRate, program.symbol));
-
+//exchange.getAccountTokenBalance(program.symbol).then(console.log);
+exchange.getTokenAskRate(program.symbol).then(askRate => {
+  exchange.calculateAmountOfTokenToBuy(program.bitcoin, askRate).then(amountOfToken => {
+    exchange.buyToken(amountOfToken, askRate, program.symbol).then(() => {
+      setTimeout(() => {
+        exchange.getAccountTokenBalance(program.symbol).then(tokenBalance => {
+          exchange.sellToken(Math.floor(tokenBalance), 0, program.symbol);
+        })
+      }, 8000);
+    });
+  })
+});
