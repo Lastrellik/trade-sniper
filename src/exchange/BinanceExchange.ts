@@ -21,7 +21,6 @@ export class BinanceExchange implements IExchange {
         if(error) {
           console.log(error);
         }
-        console.log(json.asks);
         let sumSoFar = 0;
         for(let i = 0; i < Object.keys(json.asks).length; i++) {
           const askRate = +Object.keys(json.asks)[i];
@@ -55,7 +54,7 @@ export class BinanceExchange implements IExchange {
   public async buyToken(amountOfToken: number, bidRate: number, tokenSymbol: string) {
     console.log('amountOfToken', amountOfToken);
     console.log('bidRate', bidRate);
-    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, bidRate, {type: 'MARKET'}, (response) => {
+    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, bidRate, {type: 'LIMIT'}, (response) => {
       if(response !== null) {
         console.log(response.body);
       } else {
