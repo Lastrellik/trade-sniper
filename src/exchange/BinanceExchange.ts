@@ -15,19 +15,28 @@ export class BinanceExchange implements IExchange {
     });
   }
 
-  public async getTokenAskRate(tokenSymbol: string): Promise<number> {
-    return new Promise(resolve => {
-      this.binance.prices(tokenSymbol.toUpperCase() + 'BTC', (error, ticker) => {
+  public async getTokenPrice(btcAmount: number, tokenSymbol: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.binance.depth(tokenSymbol.toUpperCase() + 'BTC', (error, json) => {
         if(error) {
-          console.log(error.body);
+          console.log(error);
         }
-        resolve(+(+ticker[tokenSymbol.toUpperCase() + 'BTC'] * 1.03).toFixed(8));
+        console.log(json.asks);
+        let sumSoFar = 0;
+        for(let i = 0; i < Object.keys(json.asks).length; i++) {
+          const askRate = +Object.keys(json.asks)[i];
+          const amount = json.asks[Object.keys(json.asks)[i]];
+          sumSoFar += askRate * amount
+          if (sumSoFar >= btcAmount) {
+            resolve(+(askRate * 1.03).toFixed(8));
+          }
+        }
+        reject('Bitcoin balance is too high');
       });
-    })
+    });
   }
 
   public async getAccountTokenBalance(tokenSymbol: string): Promise<number> {
-    console.log(tokenSymbol);
     return new Promise(resolve => {
       this.binance.balance((error, balances) => {
         if(error) {

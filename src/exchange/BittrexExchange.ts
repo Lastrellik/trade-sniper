@@ -13,7 +13,8 @@ export class BittrexExchange implements IExchange {
     this.apiSecret = apiSecret;
   }
 
-  public async getTokenAskRate(tokenSymbol: string): Promise<number> {
+  public async getTokenPrice(btcAmount: number, tokenSymbol: string): Promise<number> {
+    console.log(btcAmount)
     const hostUrl = 'https://api.bittrex.com/v3/markets/' + tokenSymbol + '-BTC/orderbook';
     let price;
     await axios.get(hostUrl).then(data => price = +this.parsePriceRequest(data.data));
