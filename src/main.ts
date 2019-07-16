@@ -40,7 +40,7 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
-exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(console.log);
+//exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(console.log);
 //exchange.getAccountTokenBalance(program.symbol).then(console.log);
 
 //Market buy then market sell
@@ -78,3 +78,13 @@ exchange.getAccountBTCBalance().then(balance => {
   });
 });
  */
+
+// limit buy 
+exchange.getAccountBTCBalance().then(balance => {
+  exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
+    exchange.calculateAmountOfTokenToBuy(balance, price).then(amountToBuy => {
+      console.log('buying ', amountToBuy);
+      exchange.limitBuy(amountToBuy, price, program.symbol);
+    });
+  });
+});
