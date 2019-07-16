@@ -19,7 +19,6 @@ export class BinanceExchange implements IExchange {
     return new Promise((resolve, reject) => {
       this.binance.depth(tokenSymbol.toUpperCase() + 'BTC', (error, json) => {
         if(error) {
-          console.log(error);
           reject(error);
         }
         let sumSoFar = 0;
@@ -41,7 +40,6 @@ export class BinanceExchange implements IExchange {
     return new Promise((resolve, reject) => {
       this.binance.depth(tokenSymbol.toUpperCase() + 'BTC', (error, json) => {
         if(error) {
-          console.log(error);
           reject(error);
         }
         console.log(json.bids);
@@ -62,10 +60,10 @@ export class BinanceExchange implements IExchange {
   }
 
   public async getAccountTokenBalance(tokenSymbol: string): Promise<number> {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       this.binance.balance((error, balances) => {
         if(error) {
-          console.log(error);
+          reject(error);
         }
         resolve(+balances[tokenSymbol].available);
       });
@@ -74,7 +72,14 @@ export class BinanceExchange implements IExchange {
 
   //TODO
   public async getAccountBTCBalance(): Promise<number> {
-    return new Promise(resolve => resolve(0));
+    return new Promise((resolve, reject) => {
+      this.binance.balance((error, balances) => {
+        if(error) {
+          reject(error);
+        }
+        resolve(+balances['BTC'].available);
+      });
+    })
   }
   
   public calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number): Promise<number> {
