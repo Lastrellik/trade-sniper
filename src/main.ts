@@ -61,25 +61,15 @@ exchange.getAccountBTCBalance().then(balance => {
  */
 
 // limit buy then limit sell with full btc balance
-/*
-exchange.getAccountBTCBalance().then(balance => {
-  exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
-    exchange.calculateAmountOfTokenToBuy(balance, price).then(amountToBuy => {
-      exchange.limitBuy(amountToBuy, price, program.symbol).then(() => {
-        setTimeout(() => {
-          exchange.getAccountTokenBalance(program.symbol).then(tokenBalance => {
-            exchange.getTokenSellPrice(tokenBalance, program.symbol).then(sellPrice => {
-              exchange.limitSell(Math.floor(tokenBalance), sellPrice, program.symbol);
-            });
-          })
-        }, 10000);
-      });
-    });
+exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(price => {
+  console.log('Would have bought at ' + price);
+  exchange.getTokenSellPrice(100, program.symbol).then(sellPrice => {
+    console.log('Would have sold at ' + sellPrice);
   });
 });
- */
 
 //limit buy then limit sell with passed btc balance
+/*
 exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(price => {
   exchange.calculateAmountOfTokenToBuy(program.bitcoin, price).then(amountToBuy => {
     exchange.limitBuy(amountToBuy, price, program.symbol).then(() => {
@@ -93,6 +83,7 @@ exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(price => {
     });
   });
 });
+ */
 
 // limit buy 
 /*

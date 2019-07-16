@@ -18,6 +18,7 @@ export class YobitExchange implements IExchange {
       axios.get(fullRequestUri).then(response => {
         const asks = response.data[tokenSymbol.toLowerCase() + '_btc'].asks;
         let sumSoFar = 0;
+        console.log(asks);
         for(let i = 0; i < asks.length; i++) {
           sumSoFar += asks[i][0] * asks[i][1];
           if (sumSoFar >= btcAmount) {
@@ -35,6 +36,7 @@ export class YobitExchange implements IExchange {
     return new Promise((resolve, reject) => {
       axios.get(fullRequestUri).then(response => {
         const bids = response.data[tokenSymbol.toLowerCase() + '_btc'].bids;
+        console.log(bids);
         let amountSoFar = 0;
         for(let i = 0; i < bids.length; i++) {
           const bidRate = bids[i][0];
@@ -107,9 +109,8 @@ export class YobitExchange implements IExchange {
   }
 
   private generateNonce() {
-    const keySeed = parseInt(this.apiKey.substring(0,5), 16);
-    const dateSeed = Date.now() / 1000;
-    return Math.floor(dateSeed + keySeed);
+    var n = require('nonce')();
+    return n() % 2147483646;
   }
 
   public calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number): Promise<number> {
@@ -117,10 +118,8 @@ export class YobitExchange implements IExchange {
     return new Promise(resolve => resolve(Math.floor((bitcoinBalance / bidRate) * BITCOIN_ADJUSTMENT)));
   }
 
-  //TODO
   public marketBuy(amountOfToken: number, tokenSymbol: string): Promise<any> {
-    console.log(amountOfToken, tokenSymbol)
-    return new Promise(resolve => resolve(0));
+    throw new Error(`Unable to buy ${amountOfToken} of ${tokenSymbol}. Market buys are not supported with Yobit`);
   }
 
   public limitBuy(amountOfToken: number, bidRate: number, tokenSymbol: string): Promise<any> {
@@ -145,14 +144,20 @@ export class YobitExchange implements IExchange {
         method: 'POST',
         headers: headers,
         data: queryStringParams
-      }).then(response => resolve(+response.data.return.funds.btc)).catch(err => console.log(err.response.data));
+      }).then(response => {
+        if(response.data.success === 1) {
+          console.log('Buy Successful!');
+        } else {
+          console.log(response.data);
+          console.log('There was an issue with the buy');
+        }
+        resolve();
+      });
     })
   }
 
-  //TODO
   public marketSell(amountOfToken: number, tokenSymbol: string): Promise<any> {
-    console.log(amountOfToken, tokenSymbol)
-    return new Promise(resolve => resolve(0));
+    throw new Error(`Unable to sell ${amountOfToken} of ${tokenSymbol}. Market sells are not supported with Yobit`);
   }
 
   public limitSell(amountOfToken: number, askRate: number, tokenSymbol: string): Promise<any> {
@@ -178,8 +183,13 @@ export class YobitExchange implements IExchange {
         headers: headers,
         data: queryStringParams
       }).then(response => {
-        console.log(response);
-        resolve(+response.data.return.funds.btc)
+        if(response.data.success === 1) {
+          console.log('sell successful');
+        } else {
+          console.log(response.data);
+          console.log('There was an issue with the sell!');
+        }
+        resolve();
       }).catch(err => console.log(err.response.data));
     })
   }
