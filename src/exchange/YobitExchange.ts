@@ -155,9 +155,32 @@ export class YobitExchange implements IExchange {
     return new Promise(resolve => resolve(0));
   }
 
-  //TODO
   public limitSell(amountOfToken: number, askRate: number, tokenSymbol: string): Promise<any> {
-    console.log(amountOfToken, askRate, tokenSymbol)
-    return new Promise(resolve => resolve(0));
+    const fullRequestUri = 'https://yobit.net/tapi';
+    const params = {
+      'method': 'Trade',
+      'pair': tokenSymbol.toLowerCase() + '_btc',
+      'type': 'sell',
+      'rate': askRate,
+      'amount': amountOfToken,
+      'nonce': '' + this.generateNonce()
+    }
+    const queryStringParams = querystring.stringify(params);
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Key': this.apiKey,
+      'Sign': this.getApiSignature(params),
+    }
+    return new Promise(resolve => {
+      axios({
+        url: fullRequestUri,
+        method: 'POST',
+        headers: headers,
+        data: queryStringParams
+      }).then(response => {
+        console.log(response);
+        resolve(+response.data.return.funds.btc)
+      }).catch(err => console.log(err.response.data));
+    })
   }
 }
