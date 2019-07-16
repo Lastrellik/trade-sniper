@@ -42,11 +42,9 @@ export class BinanceExchange implements IExchange {
         if(error) {
           reject(error);
         }
-        console.log(json.bids);
         let amountSoFar = 0;
         for(let i = 0; i < Object.keys(json.bids).length; i++) {
           const bidRate = +Object.keys(json.bids)[i];
-          console.log('bidRate ' + i, bidRate)
           const amount = json.bids[Object.keys(json.bids)[i]];
           amountSoFar += amount;
           if (amountSoFar >= amountOfToken) {
@@ -119,19 +117,17 @@ export class BinanceExchange implements IExchange {
     });
   }
 
-  //TODO
   public async limitSell(amountOfToken: number, askRate: number, tokenSymbol: string): Promise<any> {
     console.log('amountOfToken', amountOfToken);
     console.log('askRate', askRate);
+    console.log(`Limit selling ${amountOfToken} of ${tokenSymbol} with askRate of ${askRate}`);
     this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, askRate, {type: 'LIMIT'}, (error, response) => {
       if(error) {
         console.log(error.body);
       }
       if(response !== null) {
-        console.log(response.body);
-      } else {
-        console.log('Sell successful');
-      }
+        console.log('Limit sell successful');
+      }     
     });
   }
 
