@@ -1,10 +1,12 @@
 import { IExchange } from './IExchange';
 import { BittrexExchange } from './BittrexExchange';
 import { BinanceExchange } from './BinanceExchange';
+import { YobitExchange } from './YobitExchange';
 
 const exchanges = {
   'bittrex': BittrexExchange,
-  'binance': BinanceExchange
+  'binance': BinanceExchange,
+  'yobit': YobitExchange
 }
 
 export function getExchange(exchangeName: string, apiKey: string, apiSecret: string): IExchange {

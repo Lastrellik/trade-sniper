@@ -40,6 +40,7 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
+exchange.getAccountBTCBalance().then(console.log);
 
 //Market buy then market sell
 /*
@@ -59,6 +60,7 @@ exchange.getAccountBTCBalance().then(balance => {
  */
 
 // limit buy then limit sell
+/*
 exchange.getAccountBTCBalance().then(balance => {
   exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
     exchange.calculateAmountOfTokenToBuy(balance, price).then(amountToBuy => {
@@ -74,3 +76,4 @@ exchange.getAccountBTCBalance().then(balance => {
     });
   });
 });
+ */

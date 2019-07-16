@@ -1,6 +1,5 @@
-import { ASK_RATE_OFFSET } from '../config';
+import { ASK_RATE_OFFSET, BID_PRECISION} from '../config';
 import { IExchange } from './IExchange';
-import {BID_PRECISION} from '../config';
 const axios = require('axios');
 const CryptoJS = require('crypto-js');
 
