@@ -12,7 +12,6 @@ export class YobitExchange implements IExchange {
     this.apiSecret = apiSecret;
   }
 
-  //TODO
   public getTokenBuyPrice(btcAmount: number, tokenSymbol: string): Promise<number> {
     const fullRequestUri = 'https://yobit.net/api/3/depth/' + tokenSymbol.toLowerCase() + '_btc';
     return new Promise((resolve, reject) => {
@@ -31,10 +30,24 @@ export class YobitExchange implements IExchange {
     });
   }
 
-  //TODO
   public getTokenSellPrice(amountOfToken: number, tokenSymbol: string): Promise<number> {
-    console.log(amountOfToken, tokenSymbol)
-    return new Promise(resolve => resolve(0));
+    const fullRequestUri = 'https://yobit.net/api/3/depth/' + tokenSymbol.toLowerCase() + '_btc';
+    return new Promise((resolve, reject) => {
+      axios.get(fullRequestUri).then(response => {
+        const bids = response.data[tokenSymbol.toLowerCase() + '_btc'].bids;
+        let amountSoFar = 0;
+        for(let i = 0; i < bids.length; i++) {
+          const bidRate = bids[i][0];
+          const amount = bids[i][1];
+          amountSoFar += amount;
+          if (amountSoFar >= amountOfToken) {
+            resolve(bidRate);
+            break;
+          }
+        }
+        reject('Trying to sell too much of the token');
+      }) 
+    });
   }
 
   public getAccountTokenBalance(tokenSymbol: string): Promise<number> {
@@ -99,7 +112,6 @@ export class YobitExchange implements IExchange {
     return Math.floor(dateSeed + keySeed);
   }
 
-  //TODO
   public calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number): Promise<number> {
     const BITCOIN_ADJUSTMENT = 0.9975;
     return new Promise(resolve => resolve(Math.floor((bitcoinBalance / bidRate) * BITCOIN_ADJUSTMENT)));
