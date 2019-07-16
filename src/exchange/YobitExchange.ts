@@ -14,8 +14,21 @@ export class YobitExchange implements IExchange {
 
   //TODO
   public getTokenBuyPrice(btcAmount: number, tokenSymbol: string): Promise<number> {
-    console.log(btcAmount, tokenSymbol);
-    return new Promise(resolve => resolve(0));
+    const fullRequestUri = 'https://yobit.net/api/3/depth/' + tokenSymbol.toLowerCase() + '_btc';
+    return new Promise((resolve, reject) => {
+      axios.get(fullRequestUri).then(response => {
+        const asks = response.data[tokenSymbol.toLowerCase() + '_btc'].asks;
+        let sumSoFar = 0;
+        for(let i = 0; i < asks.length; i++) {
+          sumSoFar += asks[i][0] * asks[i][1];
+          if (sumSoFar >= btcAmount) {
+            resolve(+(asks[i][0]).toFixed(8));
+            break;
+          }
+        }
+        reject('Bitcoin balance is too high');
+      }) 
+    });
   }
 
   //TODO

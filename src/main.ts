@@ -40,7 +40,8 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
-exchange.getAccountBTCBalance().then(console.log);
+//exchange.getAccountBTCBalance().then(console.log);
+exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(console.log);
 
 //Market buy then market sell
 /*
