@@ -15,11 +15,12 @@ export class BinanceExchange implements IExchange {
     });
   }
 
-  public async getTokenPrice(btcAmount: number, tokenSymbol: string): Promise<number> {
+  public async getTokenBuyPrice(btcAmount: number, tokenSymbol: string): Promise<number> {
     return new Promise((resolve, reject) => {
       this.binance.depth(tokenSymbol.toUpperCase() + 'BTC', (error, json) => {
         if(error) {
           console.log(error);
+          reject(error);
         }
         let sumSoFar = 0;
         for(let i = 0; i < Object.keys(json.asks).length; i++) {
@@ -27,10 +28,35 @@ export class BinanceExchange implements IExchange {
           const amount = json.asks[Object.keys(json.asks)[i]];
           sumSoFar += askRate * amount
           if (sumSoFar >= btcAmount) {
-            resolve(+(askRate * 1.03).toFixed(8));
+            resolve(+(askRate).toFixed(8));
+            break;
           }
         }
         reject('Bitcoin balance is too high');
+      });
+    });
+  }
+
+  public async getTokenSellPrice(amountOfToken: number, tokenSymbol: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.binance.depth(tokenSymbol.toUpperCase() + 'BTC', (error, json) => {
+        if(error) {
+          console.log(error);
+          reject(error);
+        }
+        console.log(json.bids);
+        let amountSoFar = 0;
+        for(let i = 0; i < Object.keys(json.bids).length; i++) {
+          const bidRate = +Object.keys(json.bids)[i];
+          console.log('bidRate ' + i, bidRate)
+          const amount = json.bids[Object.keys(json.bids)[i]];
+          amountSoFar += amount;
+          if (amountSoFar >= amountOfToken) {
+            resolve(bidRate);
+            break;
+          }
+        }
+        reject('Trying to sell too much of the token');
       });
     });
   }
@@ -45,16 +71,20 @@ export class BinanceExchange implements IExchange {
       });
     })
   }
+
+  //TODO
+  public async getAccountBTCBalance(): Promise<number> {
+    return new Promise(resolve => resolve(0));
+  }
   
   public calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number): Promise<number> {
     const BITCOIN_ADJUSTMENT = 0.9975;
     return new Promise(resolve => resolve(Math.floor((bitcoinBalance / bidRate) * BITCOIN_ADJUSTMENT)));
   }
 
-  public async buyToken(amountOfToken: number, bidRate: number, tokenSymbol: string) {
+  public async marketBuy(amountOfToken: number, tokenSymbol: string): Promise<any> {
     console.log('amountOfToken', amountOfToken);
-    console.log('bidRate', bidRate);
-    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, bidRate, {type: 'LIMIT'}, (response) => {
+    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (response) => {
       if(response !== null) {
         console.log(response.body);
       } else {
@@ -63,7 +93,35 @@ export class BinanceExchange implements IExchange {
     });
   }
 
-  public async sellToken(amountOfToken: number, askRate: number,  tokenSymbol: string) {
+  public async limitBuy(amountOfToken: number, bidRate: number, tokenSymbol: string) {
+    console.log('amountOfToken', amountOfToken);
+    console.log('bidRate', bidRate);
+    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (response) => {
+      if(response !== null) {
+        console.log(response.body);
+      } else {
+        console.log('Purchase successful');
+      }
+    });
+  }
+
+  public async marketSell(amountOfToken: number,  tokenSymbol: string) {
+    console.log('amountOfToken', amountOfToken);
+    //this.binance.marketSell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken);
+    this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (error, response) => {
+      if(error) {
+        console.log(error.body);
+      }
+      if(response !== null) {
+        console.log(response.body);
+      } else {
+        console.log('Sell successful');
+      }
+    });
+  }
+
+  //TODO
+  public async limitSell(amountOfToken: number, askRate: number, tokenSymbol: string): Promise<any> {
     console.log('amountOfToken', amountOfToken);
     console.log('askRate', askRate);
     //this.binance.marketSell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken);
@@ -79,12 +137,4 @@ export class BinanceExchange implements IExchange {
     });
   }
 
-  public async getAccountBalances(): Promise<any> {
-    return new Promise(resolve => resolve('ass'));
-  }
-
-  public async getMarketSummaries(): Promise<any> {
-    return new Promise(resolve => resolve('ass'));
-  }
-  
 }
