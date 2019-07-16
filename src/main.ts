@@ -40,5 +40,17 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
-exchange.getAccountBTCBalance().then(console.log);
 
+exchange.getAccountBTCBalance().then(balance => {
+  exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
+    exchange.calculateAmountOfTokenToBuy(balance, price).then(amountToBuy => {
+      exchange.marketBuy(amountToBuy, program.symbol).then(() => {
+        setTimeout(() => {
+          exchange.getAccountTokenBalance(program.symbol).then(tokenBalance => {
+            exchange.marketSell(Math.floor(tokenBalance), program.symbol);
+          })
+        }, 10000);
+      });
+    });
+  });
+});

@@ -70,7 +70,6 @@ export class BinanceExchange implements IExchange {
     })
   }
 
-  //TODO
   public async getAccountBTCBalance(): Promise<number> {
     return new Promise((resolve, reject) => {
       this.binance.balance((error, balances) => {
@@ -93,35 +92,30 @@ export class BinanceExchange implements IExchange {
       if(response !== null) {
         console.log(response.body);
       } else {
-        console.log('Purchase successful');
+        console.log('Market buy successful');
       }
     });
   }
 
   public async limitBuy(amountOfToken: number, bidRate: number, tokenSymbol: string) {
-    console.log('amountOfToken', amountOfToken);
-    console.log('bidRate', bidRate);
-    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (response) => {
+    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, bidRate, {type: 'LIMIT'}, (response) => {
       if(response !== null) {
         console.log(response.body);
       } else {
-        console.log('Purchase successful');
+        console.log('Limit buy successful');
       }
     });
   }
 
   public async marketSell(amountOfToken: number,  tokenSymbol: string) {
-    console.log('amountOfToken', amountOfToken);
-    //this.binance.marketSell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken);
+    console.log(`market selling ${amountOfToken} of ${tokenSymbol}`)
     this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (error, response) => {
       if(error) {
         console.log(error.body);
       }
       if(response !== null) {
-        console.log(response.body);
-      } else {
-        console.log('Sell successful');
-      }
+        console.log('market sell successful');
+      }     
     });
   }
 
@@ -129,8 +123,7 @@ export class BinanceExchange implements IExchange {
   public async limitSell(amountOfToken: number, askRate: number, tokenSymbol: string): Promise<any> {
     console.log('amountOfToken', amountOfToken);
     console.log('askRate', askRate);
-    //this.binance.marketSell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken);
-    this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (error, response) => {
+    this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, askRate, {type: 'LIMIT'}, (error, response) => {
       if(error) {
         console.log(error.body);
       }
