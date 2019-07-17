@@ -51,17 +51,29 @@ export class BittrexExchange implements IExchange {
     });
   }
 
-  //TODO
   public async getAccountTokenBalance(tokenSymbol: string): Promise<number> {
     console.log(tokenSymbol);
-    return new Promise(resolve => resolve(0));
-    //IMPLEMENT ME
+    const timestamp = new Date().getTime();
+    const fullRequestUri = 'https://api.bittrex.com/v3/balances/' + tokenSymbol;
+    const httpRequestMethod = 'GET';
+    const apiContentHash = this.getApiContentHash('');
+    const headers = {
+      'Api-Key': this.apiKey,
+      'Api-Timestamp': timestamp,
+      'Api-Content-Hash': apiContentHash,
+      'Api-Signature': this.getApiSignature(timestamp, fullRequestUri, httpRequestMethod, apiContentHash) 
+    }
+    return new Promise((resolve, reject) => {
+      axios({
+        url: fullRequestUri,
+        method: httpRequestMethod,
+        headers: headers,
+      }).then(response => resolve(+response.data.total)).catch(err => reject(err));
+    });
   }
 
-  //TODO
   public async getAccountBTCBalance(): Promise<number> {
-    return new Promise(resolve => resolve(0));
-    //IMPLEMENT ME
+    return this.getAccountTokenBalance('BTC');
   }
 
   public calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number): Promise<number> {
