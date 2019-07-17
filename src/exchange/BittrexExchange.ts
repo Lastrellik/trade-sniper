@@ -27,7 +27,7 @@ export class BittrexExchange implements IExchange {
           }
         }
         reject('Bitcoin balance is too high');
-      }).catch(err => reject(err));;
+      });
     });
   }
 
@@ -42,7 +42,7 @@ export class BittrexExchange implements IExchange {
           const amount = entry.quantity;
           amountSoFar += +amount;
           if (amountSoFar >= amountOfToken) {
-            resolve(bidRate);
+            resolve(+bidRate);
             break;
           }
         }
