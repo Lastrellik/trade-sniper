@@ -1,4 +1,4 @@
-import { ASK_RATE_OFFSET, BID_PRECISION} from '../config';
+import { BID_PRECISION} from '../config';
 import { IExchange } from './IExchange';
 const axios = require('axios');
 const CryptoJS = require('crypto-js');
@@ -31,13 +31,24 @@ export class BittrexExchange implements IExchange {
     });
   }
 
-  //TODO
   public async getTokenSellPrice(amountOfToken: number, tokenSymbol: string): Promise<number> {
-    console.log(amountOfToken)
     const hostUrl = 'https://api.bittrex.com/v3/markets/' + tokenSymbol + '-BTC/orderbook';
-    let price;
-    await axios.get(hostUrl).then(data => price = +this.parsePriceRequest(data.data));
-    return price;
+    return new Promise((resolve, reject) => {
+      axios.get(hostUrl).then(data => {
+        const bids = data.data.bid;
+        let amountSoFar = 0;
+        for(var entry of bids) {
+          const bidRate = entry.rate;
+          const amount = entry.quantity;
+          amountSoFar += +amount;
+          if (amountSoFar >= amountOfToken) {
+            resolve(bidRate);
+            break;
+          }
+        }
+        reject('Trying to sell too much of the token');
+      }) 
+    });
   }
 
   //TODO
@@ -176,7 +187,4 @@ export class BittrexExchange implements IExchange {
     return CryptoJS.HmacSHA512(preSign, this.apiSecret).toString(CryptoJS.enc.Hex);
   }
 
-  private parsePriceRequest(jsonData: any) {
-    return (+jsonData.ask[ASK_RATE_OFFSET].rate).toFixed(8);
-  }
 }

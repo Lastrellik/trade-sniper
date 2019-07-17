@@ -40,6 +40,7 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
+exchange.getTokenSellPrice(4000000, program.symbol).then(console.log);
 //exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(console.log);
 //exchange.getAccountTokenBalance(program.symbol).then(console.log);
 
@@ -61,12 +62,14 @@ exchange.getAccountBTCBalance().then(balance => {
  */
 
 // limit buy then limit sell with full btc balance
+/*
 exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(price => {
   console.log('Would have bought at ' + price);
   exchange.getTokenSellPrice(100, program.symbol).then(sellPrice => {
     console.log('Would have sold at ' + sellPrice);
   });
 });
+ */
 
 //limit buy then limit sell with passed btc balance
 /*
