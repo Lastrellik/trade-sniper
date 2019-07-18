@@ -105,4 +105,25 @@ describe('BittrexExchange', () => {
       });
     return expect(await bittrexExchange.getAccountTokenBalance(tokenSymbol)).toEqual(139.7868);
   });
+
+  it('Returns 0 if there the balance of a given token is 0', async () => {
+    const tokenSymbol = 'MLG';
+    nock('https://api.bittrex.com')
+      .get('/v3/balances/' + tokenSymbol)
+      .reply(200, {
+        total: 0
+      });
+    return expect(await bittrexExchange.getAccountTokenBalance(tokenSymbol)).toEqual(0);
+  });
+
+  it('Returns the correct BTC balance', async () => {
+    const tokenSymbol = 'BTC';
+    nock('https://api.bittrex.com')
+      .get('/v3/balances/' + tokenSymbol)
+      .reply(200, {
+        total: 0.094549
+      });
+    return expect(await bittrexExchange.getAccountBTCBalance()).toEqual(0.094549);
+
+  });
 });

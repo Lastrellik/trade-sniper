@@ -40,7 +40,7 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
-exchange.getAccountTokenBalance('PINK');
+exchange.getAccountTokenBalance('NLG').then(console.log);
 //exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(console.log);
 //exchange.getAccountTokenBalance(program.symbol).then(console.log);
 
