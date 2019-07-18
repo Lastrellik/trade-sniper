@@ -124,6 +124,9 @@ describe('BittrexExchange', () => {
         total: 0.094549
       });
     return expect(await bittrexExchange.getAccountBTCBalance()).toEqual(0.094549);
+  });
 
+  it('Correctly calculates amount of token to buy', async () => {
+    expect(await bittrexExchange.calculateAmountOfTokenToBuy(0.5, 0.0000054)).toEqual(92361.11111111);
   });
 });
