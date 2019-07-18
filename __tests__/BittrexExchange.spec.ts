@@ -95,4 +95,14 @@ describe('BittrexExchange', () => {
       });
     return expect(bittrexExchange.getTokenSellPrice(1000000000000000, tokenSymbol)).rejects.toMatch('Trying to sell too much of the token');
   });
+
+  it('Gets an account balance for a given token symbol', async () => {
+    const tokenSymbol = 'PINK';
+    nock('https://api.bittrex.com')
+      .get('/v3/balances/' + tokenSymbol)
+      .reply(200, {
+        total: 139.7868 
+      });
+    return expect(await bittrexExchange.getAccountTokenBalance(tokenSymbol)).toEqual(139.7868);
+  });
 });
