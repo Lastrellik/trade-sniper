@@ -45,8 +45,8 @@ exchange.getAccountBTCBalance().then(balance => {
   exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
     console.log('buy price of ' + price);
     exchange.calculateAmountOfTokenToBuy(balance, price).then(amount => {
-      console.log('amount to buy' + amount);
-      exchange.marketBuy(amount, program.symbol).then(console.log);
+      console.log('amount to buy ' + amount);
+      exchange.limitBuy(amount, price, program.symbol).then(console.log);
     });
   });
 
