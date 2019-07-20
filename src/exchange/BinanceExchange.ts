@@ -69,14 +69,7 @@ export class BinanceExchange implements IExchange {
   }
 
   public async getAccountBTCBalance(): Promise<number> {
-    return new Promise((resolve, reject) => {
-      this.binance.balance((error, balances) => {
-        if(error) {
-          reject(error);
-        }
-        resolve(+balances['BTC'].available);
-      });
-    })
+    return this.getAccountTokenBalance('BTC');
   }
   
   public calculateAmountOfTokenToBuy(bitcoinBalance: number, bidRate: number): Promise<number> {

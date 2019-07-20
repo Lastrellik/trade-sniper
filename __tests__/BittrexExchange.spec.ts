@@ -129,4 +129,30 @@ describe('BittrexExchange', () => {
   it('Correctly calculates amount of token to buy', async () => {
     expect(await bittrexExchange.calculateAmountOfTokenToBuy(0.5, 0.0000054)).toEqual(92361.11111111);
   });
+
+  it('Performs a market buy', async () => {
+    const tokenSymbol = 'PINK';
+    nock('https://api.bittrex.com')
+      .post('/v3/orders')
+      .reply(201, {
+          id: 'b93f6ac5-77c2-4414-8ecd-101a4274b556',
+          marketSymbol: 'PINK-BTC',
+          direction: 'BUY',
+          type: 'MARKET',
+          quantity: '13635.4925',
+          timeInForce: 'IMMEDIATE_OR_CANCEL',
+          fillQuantity: '13635.49250000',
+          commission: '0.00000715',
+          proceeds: '0.00286345',
+          status: 'CLOSED',
+          createdAt: '2019-07-20T01:55:24.77Z',
+          updatedAt: '2019-07-20T01:55:24.77Z',
+          closedAt: '2019-07-20T01:55:24.77Z' 
+      });
+
+    const response = await bittrexExchange.marketBuy(13635.4925, tokenSymbol);
+    console.log(response);
+    expect(response['quantity']).toEqual('13635.4925');
+  });
+
 });

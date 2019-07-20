@@ -99,12 +99,14 @@ export class BittrexExchange implements IExchange {
       'Api-Content-Hash': apiContentHash,
       'Api-Signature': this.getApiSignature(timestamp, fullRequestUri, httpRequestMethod, apiContentHash) 
     }
-    await axios({
-      url: fullRequestUri,
-      method: httpRequestMethod,
-      headers: headers,
-      data: data
-    }).then(console.log).catch(err => console.log(err.response.data));
+    return new Promise((resolve, reject) => {
+      axios({
+        url: fullRequestUri,
+        method: httpRequestMethod,
+        headers: headers,
+        data: data
+      }).then(response => resolve(response.data)).catch(err => reject(err));
+    })
   }
 
   public async limitBuy(amountOfToken: number, tokenBidRate: number,  tokenSymbol: string) {

@@ -40,21 +40,35 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
-exchange.getAccountTokenBalance('NLG').then(console.log);
-//exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(console.log);
-//exchange.getAccountTokenBalance(program.symbol).then(console.log);
+exchange.getAccountBTCBalance().then(balance => {
+  console.log('btc balance of ' + balance)
+  exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
+    console.log('buy price of ' + price);
+    exchange.calculateAmountOfTokenToBuy(balance, price).then(amount => {
+      console.log('amount to buy' + amount);
+      exchange.marketBuy(amount, program.symbol).then(console.log);
+    });
+  });
+
+})
 
 //Market buy then market sell
 /*
 exchange.getAccountBTCBalance().then(balance => {
+  console.log('Beginning BTC Balance ', balance);
   exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
     exchange.calculateAmountOfTokenToBuy(balance, price).then(amountToBuy => {
       exchange.marketBuy(amountToBuy, program.symbol).then(() => {
         setTimeout(() => {
           exchange.getAccountTokenBalance(program.symbol).then(tokenBalance => {
-            exchange.marketSell(Math.floor(tokenBalance), program.symbol);
+            exchange.marketSell(Math.floor(tokenBalance), program.symbol).then(() => {
+              exchange.getAccountBTCBalance().then(newBalance => {
+                console.log('Ending BTC Balance: ' + newBalance);
+                console.log('Difference of ' + (newBalance - balance));
+              })
+            });
           })
-        }, 10000);
+        }, 8000);
       });
     });
   });
