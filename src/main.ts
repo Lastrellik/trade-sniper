@@ -40,6 +40,7 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
+/*
 exchange.getAccountBTCBalance().then(balance => {
   console.log('btc balance of ' + balance)
   exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
@@ -49,7 +50,15 @@ exchange.getAccountBTCBalance().then(balance => {
       exchange.limitBuy(amount, price, program.symbol).then(console.log);
     });
   });
+})
+ */
 
+exchange.getAccountTokenBalance('PINK').then(balance => {
+  console.log('PINK balance of ' + balance);
+  exchange.getTokenSellPrice(balance, 'PINK').then(sellPrice => {
+    console.log('sell price of ' + sellPrice);
+    exchange.limitSell(balance, sellPrice, 'PINK').then(console.log);
+  });
 })
 
 //Market buy then market sell

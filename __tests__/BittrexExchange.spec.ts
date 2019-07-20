@@ -179,4 +179,28 @@ describe('BittrexExchange', () => {
     expect(response['type']).toEqual('LIMIT');
   });
 
+  it('Performs a limit sell', async () => {
+    const tokenSymbol = 'PINK';
+    nock('https://api.bittrex.com')
+      .post('/v3/orders')
+      .reply(201, {
+          id: 'c7a3c394-5246-4f18-b055-1d4859f4882d',
+          marketSymbol: 'PINK-BTC',
+          direction: 'SELL',
+          type: 'LIMIT',
+          quantity: '12921.4725',
+          limit: '0.0000002',
+          timeInForce: 'IMMEDIATE_OR_CANCEL',
+          fillQuantity: '12921.47250000',
+          commission: '0.00000646',
+          proceeds: '0.00258429',
+          status: 'CLOSED',
+          createdAt: '2019-07-20T21:21:10.47Z',
+          updatedAt: '2019-07-20T21:21:10.47Z',
+          closedAt: '2019-07-20T21:21:10.47Z' 
+      });
+    const response = await bittrexExchange.limitSell(12921.4725, 0.0000002, tokenSymbol);
+    expect(response['type']).toEqual('LIMIT');
+  })
+
 });

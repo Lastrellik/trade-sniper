@@ -52,7 +52,6 @@ export class BittrexExchange implements IExchange {
   }
 
   public async getAccountTokenBalance(tokenSymbol: string): Promise<number> {
-    console.log(tokenSymbol);
     const timestamp = new Date().getTime();
     const fullRequestUri = 'https://api.bittrex.com/v3/balances/' + tokenSymbol;
     const httpRequestMethod = 'GET';
@@ -165,16 +164,15 @@ export class BittrexExchange implements IExchange {
     }).then(console.log).catch(err => console.log(err.response.data));
   }
   
-  //TODO
   public async limitSell(amountOfToken: number, askRate: number, tokenSymbol: string): Promise<any> {
-    console.log(askRate);
     const timestamp = new Date().getTime();
     const fullRequestUri = 'https://api.bittrex.com/v3/orders';
     const httpRequestMethod = 'POST';
     const data = {
       "marketSymbol": tokenSymbol + "-BTC",
       "direction": "SELL",
-      "type": "MARKET",
+      "type": "LIMIT",
+      "limit": askRate,
       "quantity": amountOfToken,
       "timeInForce": "IMMEDIATE_OR_CANCEL"
     }
@@ -185,12 +183,14 @@ export class BittrexExchange implements IExchange {
       'Api-Content-Hash': apiContentHash,
       'Api-Signature': this.getApiSignature(timestamp, fullRequestUri, httpRequestMethod, apiContentHash) 
     }
-    await axios({
-      url: fullRequestUri,
-      method: httpRequestMethod,
-      headers: headers,
-      data: data
-    }).then(console.log).catch(err => console.log(err.response.data));
+    return new Promise((resolve, reject) => {
+      axios({
+        url: fullRequestUri,
+        method: httpRequestMethod,
+        headers: headers,
+        data: data
+      }).then(response => resolve(response.data)).catch(err => reject(err));
+    });
   }
 
   private getApiContentHash(content: string) {
