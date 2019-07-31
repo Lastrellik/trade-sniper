@@ -53,6 +53,7 @@ exchange.getAccountBTCBalance().then(balance => {
 })
  */
 
+/*
 exchange.getAccountTokenBalance('PINK').then(balance => {
   console.log('PINK balance of ' + balance);
   exchange.getTokenSellPrice(balance, 'PINK').then(sellPrice => {
@@ -60,36 +61,54 @@ exchange.getAccountTokenBalance('PINK').then(balance => {
     exchange.limitSell(balance, sellPrice, 'PINK').then(console.log);
   });
 })
+*/
 
 //Market buy then market sell
-/*
 exchange.getAccountBTCBalance().then(balance => {
   console.log('Beginning BTC Balance ', balance);
   exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
+    console.log('Purchase price: ' + price);
     exchange.calculateAmountOfTokenToBuy(balance, price).then(amountToBuy => {
+      console.log('Purchasing ' + amountToBuy + ' of ' + program.symbol);
       exchange.marketBuy(amountToBuy, program.symbol).then(() => {
         setTimeout(() => {
           exchange.getAccountTokenBalance(program.symbol).then(tokenBalance => {
-            exchange.marketSell(Math.floor(tokenBalance), program.symbol).then(() => {
+            exchange.limitSell(Math.floor(tokenBalance), +((price * 1.1).toFixed(8)), program.symbol).then(() => {
               exchange.getAccountBTCBalance().then(newBalance => {
                 console.log('Ending BTC Balance: ' + newBalance);
                 console.log('Difference of ' + (newBalance - balance));
               })
             });
           })
-        }, 8000);
+        }, 3000);
       });
     });
   });
 });
- */
 
 // limit buy then limit sell with full btc balance
 /*
-exchange.getTokenBuyPrice(program.bitcoin, program.symbol).then(price => {
-  console.log('Would have bought at ' + price);
-  exchange.getTokenSellPrice(100, program.symbol).then(sellPrice => {
-    console.log('Would have sold at ' + sellPrice);
+exchange.getAccountBTCBalance().then(balance => {
+  console.log('Beginning BTC Balance ', balance);
+  exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
+    console.log('Purchase price: ' + price);
+    exchange.calculateAmountOfTokenToBuy(balance, price).then(amountToBuy => {
+      console.log('Purchasing ' + amountToBuy + ' of ' + program.symbol);
+      exchange.limitBuy(amountToBuy, price, program.symbol).then(() => {
+        setTimeout(() => {
+          exchange.getAccountTokenBalance(program.symbol).then(tokenBalance => {
+            exchange.getTokenSellPrice(tokenBalance, program.symbol).then(sellPrice => {
+              exchange.limitSell(Math.floor(tokenBalance), sellPrice, program.symbol).then(() => {
+                exchange.getAccountBTCBalance().then(newBalance => {
+                  console.log('Ending BTC Balance: ' + newBalance);
+                  console.log('Difference of ' + (newBalance - balance).toFixed(8));
+                })
+              });
+            })
+          })
+        }, 5000);
+      });
+    });
   });
 });
  */

@@ -19,9 +19,14 @@ export class YobitExchange implements IExchange {
         const asks = response.data[tokenSymbol.toLowerCase() + '_btc'].asks;
         let sumSoFar = 0;
         console.log(asks);
+        const startingAskRate = asks[0][0];
         for(let i = 0; i < asks.length; i++) {
           sumSoFar += asks[i][0] * asks[i][1];
           if (sumSoFar >= btcAmount) {
+            const percentGainFromMyBuy = ((+asks[i][0] - startingAskRate) / startingAskRate) * 100;
+            if(percentGainFromMyBuy > 30) {
+              reject('Cancelling purchase. My buy would have raised the price %' + percentGainFromMyBuy);
+            }
             resolve(+(asks[i][0]).toFixed(8));
             break;
           }
