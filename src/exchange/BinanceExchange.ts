@@ -27,7 +27,9 @@ export class BinanceExchange implements IExchange {
           const amount = json.asks[Object.keys(json.asks)[i]];
           sumSoFar += askRate * amount
           if (sumSoFar >= btcAmount) {
-            resolve(+(askRate).toFixed(8));
+            const buyPrice = +(askRate).toFixed(8);
+            console.log('Buy price: ' + buyPrice);
+            resolve(buyPrice);
             break;
           }
         }
@@ -78,7 +80,7 @@ export class BinanceExchange implements IExchange {
   }
 
   public async marketBuy(amountOfToken: number, tokenSymbol: string): Promise<any> {
-    console.log('amountOfToken', amountOfToken);
+    console.log(`market buying ${amountOfToken} of ${tokenSymbol}`);
     this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (response) => {
       if(response !== null) {
         console.log(response.body);
@@ -104,21 +106,20 @@ export class BinanceExchange implements IExchange {
       if(error) {
         console.log(error.body);
       }
-      if(response !== null) {
+      if(response !== null && response !== {}) {
         console.log('market sell successful');
       }     
     });
   }
 
   public async limitSell(amountOfToken: number, askRate: number, tokenSymbol: string): Promise<any> {
-    console.log('amountOfToken', amountOfToken);
-    console.log('askRate', askRate);
-    console.log(`Limit selling ${amountOfToken} of ${tokenSymbol} with askRate of ${askRate}`);
-    this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, askRate, {type: 'LIMIT'}, (error, response) => {
+    console.log(`Limit selling ${Math.floor(amountOfToken)} of ${tokenSymbol} with askRate of ${askRate}`);
+    this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', Math.floor(amountOfToken), askRate, {type: 'LIMIT'}, (error, response) => {
       if(error) {
         console.log(error.body);
       }
       if(response !== null) {
+        console.log(response);
         console.log('Limit sell successful');
       }     
     });

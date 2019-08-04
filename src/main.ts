@@ -1,28 +1,17 @@
 import { IExchange } from './exchange/IExchange';
 import { getExchange } from './exchange/ExchangeFactory';
+import { Strategy } from './Strategy';
 const commander = require('commander');
 const program = new commander.Command();
 
 program.version('0.0.1');
 
 program
-  .option('-b, --bitcoin <number>', 'Exact amount of bitcoin in your Bittrex wallet', parseFloat)
-  .option('-s, --symbol <symbol>', 'Symbol of token to purchase with full bitcoin amount')
   .option('-k, --apiKey <value>', 'Api Key from the exchange')
-  .option('-S, --secret <value>', 'Api Secret from the exchange')
+  .option('-s, --secret <value>', 'Api Secret from the exchange')
   .option('-e, --exchange <value>', 'The name of the exchange');
 
 program.parse(process.argv);
-
-if(program.symbol === undefined) {
-  console.error('Symbol must be passed with -s <symbol> or --symbol <symbol>');
-  process.exit();
-}
-
-if(program.bitcoin === undefined) {
-  console.error('Bitcoin balance must be passed with -b <balance> or --bitcoin <balance>');
-  process.exit();
-}
 
 if(program.apiKey === undefined) {
   console.error('apiKey must be passed with -k <value> or --apiKey <value>');
@@ -40,6 +29,29 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
+const strategy: Strategy = new Strategy(exchange);
+const inquirer = require('inquirer');
+const questions = [
+  {
+    type: 'number', 
+    name: 'btcBalance',
+    message: 'Enter the BTC Balance you would like to play with'
+  },
+  {
+    type: 'number',
+    name: 'percent',
+    message: 'Enter the target percent you would like to gain'
+  },
+  {
+    type: 'input',
+    name: 'symbol',
+    message: 'Enter the symbol of the token to pump'
+  }
+]
+
+inquirer.prompt(questions).then(answers => {
+  strategy.marketBuyLimitSell(answers.btcBalance, answers.symbol, answers.percent);
+})
 /*
 exchange.getAccountBTCBalance().then(balance => {
   console.log('btc balance of ' + balance)
@@ -64,6 +76,7 @@ exchange.getAccountTokenBalance('PINK').then(balance => {
 */
 
 //Market buy then market sell
+  /*
 exchange.getAccountBTCBalance().then(balance => {
   console.log('Beginning BTC Balance ', balance);
   exchange.getTokenBuyPrice(balance, program.symbol).then(price => {
@@ -85,6 +98,7 @@ exchange.getAccountBTCBalance().then(balance => {
     });
   });
 });
+   */
 
 // limit buy then limit sell with full btc balance
 /*
