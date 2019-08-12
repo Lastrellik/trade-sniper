@@ -20,11 +20,12 @@ export class Strategy {
 
   public async marketBuyLimitSell(btcBalance: number, tokenSymbol: string, targetGainPercent: number) {
     const buyPrice: number = await this.exchange.getTokenBuyPrice(btcBalance, tokenSymbol);
+    const buyPriceDecimals: number = ('' + buyPrice).split('.')[1].length;
     const amountOfTokenToBuy: number = await this.exchange.calculateAmountOfTokenToBuy(btcBalance, buyPrice);
     this.exchange.marketBuy(amountOfTokenToBuy, tokenSymbol).then(() => {
       setTimeout(async () => {
         const amountOfTokensInWallet: number = await this.exchange.getAccountTokenBalance(tokenSymbol);
-        const sellPrice: number = +(buyPrice * (1 + (targetGainPercent / 100))).toFixed(6);
+        const sellPrice: number = +(buyPrice * (1 + (targetGainPercent / 100))).toFixed(buyPriceDecimals);
         console.log('sellPrice', sellPrice)
         await this.exchange.limitSell(amountOfTokensInWallet, sellPrice, tokenSymbol);
       }, 3000);
