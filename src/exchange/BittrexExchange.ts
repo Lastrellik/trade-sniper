@@ -6,10 +6,20 @@ const CryptoJS = require('crypto-js');
 export class BittrexExchange implements IExchange {
   public apiKey: string;
   public apiSecret: string;
+  private prices: any;
 
   constructor(apiKey: string, apiSecret: string){
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
+  }
+
+  //TODO
+  public async preloadPrices(): Promise<void> {
+    return new Promise(resolve => resolve())
+  }
+
+  public getPreloadedTokenBuyPrice(tokenSymbol: string): number {
+    return this.prices[tokenSymbol];
   }
 
   public async getTokenBuyPrice(btcAmount: number, tokenSymbol: string): Promise<number> {

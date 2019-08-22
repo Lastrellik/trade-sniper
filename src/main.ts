@@ -50,7 +50,8 @@ const questions = [
 ]
 
 inquirer.prompt(questions).then(answers => {
-  strategy.marketBuyLimitSell(answers.btcBalance, answers.symbol, answers.percent);
+  exchange.preloadPrices().then(() => console.log(exchange.getPreloadedTokenBuyPrice('COS')));
+  //strategy.marketBuyLimitSell(answers.btcBalance, answers.symbol, answers.percent);
 })
 /*
 exchange.getAccountBTCBalance().then(balance => {

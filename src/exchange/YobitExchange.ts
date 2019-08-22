@@ -6,10 +6,20 @@ const querystring = require('querystring');
 export class YobitExchange implements IExchange {
   public apiKey: string; 
   public apiSecret: string;
+  private prices: any;
 
   constructor(apiKey: string, apiSecret: string) {
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
+  }
+  
+  //TODO
+  public preloadPrices(): Promise<void> {
+    return new Promise(resolve => resolve())
+  }
+
+  public getPreloadedTokenBuyPrice(tokenSymbol: string): number {
+    return this.prices[tokenSymbol];
   }
 
   public getTokenBuyPrice(btcAmount: number, tokenSymbol: string): Promise<number> {

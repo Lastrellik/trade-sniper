@@ -4,6 +4,7 @@ export class BinanceExchange implements IExchange {
   public apiKey: string;
   public apiSecret: string;
   private binance;
+  private prices: any;
 
   constructor(apiKey: string, apiSecret: string){
     this.apiKey = apiKey;
@@ -13,6 +14,25 @@ export class BinanceExchange implements IExchange {
       APISECRET: this.apiSecret,
       userServerTime: true
     });
+  }
+
+  public preloadPrices(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.binance.prices((error, ticker) => {
+        if(error) {
+          reject(error)
+        }
+        this.prices = ticker;
+        resolve();
+      });
+    });
+  }
+
+  public getPreloadedTokenBuyPrice(tokenSymbol: string): number {
+    if(!this.prices) {
+      throw new Error('Prices have not been preloaded');
+    }
+    return +this.prices[tokenSymbol.toUpperCase() + 'BTC'];
   }
 
   public async getTokenBuyPrice(btcAmount: number, tokenSymbol: string): Promise<number> {
@@ -90,14 +110,15 @@ export class BinanceExchange implements IExchange {
     });
   }
 
-  public async limitBuy(amountOfToken: number, bidRate: number, tokenSymbol: string) {
-    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, bidRate, {type: 'LIMIT'}, (response) => {
-      if(response !== null) {
-        console.log(response.body);
-      } else {
-        console.log('Limit buy successful');
-      }
-    });
+  public async limitBuy(amountOfToken: number, bidRate: number, tokenSymbol: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, bidRate, {type: 'LIMIT'}, (error, response) => {
+        if(error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    })
   }
 
   public async marketSell(amountOfToken: number,  tokenSymbol: string) {

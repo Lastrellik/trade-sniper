@@ -1,6 +1,8 @@
 export interface IExchange {
   apiKey: string; 
   apiSecret: string;
+  preloadPrices(): Promise<void>;
+  getPreloadedTokenBuyPrice(tokenSymbol: string): number;
   getTokenBuyPrice(btcAmount: number, tokenSymbol: string): Promise<number>;
   getTokenSellPrice(amountOfToken: number, tokenSymbol: string): Promise<number>;
   getAccountTokenBalance(tokenSymbol: string): Promise<number>;
