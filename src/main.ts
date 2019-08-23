@@ -29,6 +29,7 @@ if(program.exchange === undefined) {
 }
 
 const exchange: IExchange = getExchange(program.exchange, program.apiKey, program.secret);
+exchange.preloadPrices();
 const strategy: Strategy = new Strategy(exchange);
 const inquirer = require('inquirer');
 const questions = [
@@ -36,6 +37,11 @@ const questions = [
     type: 'number', 
     name: 'btcBalance',
     message: 'Enter the BTC Balance you would like to play with'
+  },
+  {
+    type: 'number',
+    name: 'threshold',
+    message: 'Enter the threshold percentage before aborting pump'
   },
   {
     type: 'number',
@@ -50,7 +56,7 @@ const questions = [
 ]
 
 inquirer.prompt(questions).then(answers => {
-  exchange.preloadPrices().then(() => console.log(exchange.getPreloadedTokenBuyPrice('COS')));
+  strategy.limitBuyLimitSell(answers.btcBalance, answers.symbol, answers.threshold, answers.percent);
   //strategy.marketBuyLimitSell(answers.btcBalance, answers.symbol, answers.percent);
 })
 /*

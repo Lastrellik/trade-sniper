@@ -202,6 +202,18 @@ export class BittrexExchange implements IExchange {
       }).then(response => resolve(response.data)).catch(err => reject(err));
     });
   }
+  
+  //TODO
+  public async getOrderStatus(tokenSymbol: string, orderId: number): Promise<any> {
+    console.log(tokenSymbol, orderId);
+    return new Promise(resolve => resolve('resolution'));
+  }
+
+  //TODO
+  public async cancelOrder(tokenSymbol: string, orderId: number): Promise<any> {
+    console.log(tokenSymbol, orderId);
+    return new Promise(resolve => resolve('resolution'));
+  }
 
   private getApiContentHash(content: string) {
     return CryptoJS.SHA512(content).toString(CryptoJS.enc.Hex);

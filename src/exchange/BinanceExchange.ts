@@ -32,7 +32,7 @@ export class BinanceExchange implements IExchange {
     if(!this.prices) {
       throw new Error('Prices have not been preloaded');
     }
-    return +this.prices[tokenSymbol.toUpperCase() + 'BTC'];
+    return +(this.prices[tokenSymbol.toUpperCase() + 'BTC']);
   }
 
   public async getTokenBuyPrice(btcAmount: number, tokenSymbol: string): Promise<number> {
@@ -101,13 +101,14 @@ export class BinanceExchange implements IExchange {
 
   public async marketBuy(amountOfToken: number, tokenSymbol: string): Promise<any> {
     console.log(`market buying ${amountOfToken} of ${tokenSymbol}`);
-    this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (response) => {
-      if(response !== null) {
-        console.log(response.body);
-      } else {
-        console.log('Market buy successful');
-      }
-    });
+    return new Promise((resolve, reject) => {
+      this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (error, response) => {
+        if(error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    })
   }
 
   public async limitBuy(amountOfToken: number, bidRate: number, tokenSymbol: string): Promise<any> {
@@ -143,6 +144,28 @@ export class BinanceExchange implements IExchange {
         console.log(response);
         console.log('Limit sell successful');
       }     
+    });
+  }
+
+  public async getOrderStatus(tokenSymbol: string, orderId: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.binance.orderStatus(tokenSymbol.toUpperCase() + 'BTC', orderId, (error, orderStatus) => {
+        if(error) {
+          reject(error);
+        }
+        resolve(orderStatus);
+      })
+    });
+  }
+
+  public async cancelOrder(tokenSymbol: string, orderId: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.binance.cancel(tokenSymbol.toUpperCase() + 'BTC', orderId, (error, response) => {
+        if(error) {
+          reject(error)
+        }
+        resolve(response);
+      })
     });
   }
 

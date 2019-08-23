@@ -208,4 +208,17 @@ export class YobitExchange implements IExchange {
       }).catch(err => console.log(err.response.data));
     })
   }
+
+  //TODO
+  public async getOrderStatus(tokenSymbol: string, orderId: number): Promise<any> {
+    console.log(tokenSymbol, orderId);
+    return new Promise(resolve => resolve('resolution'));
+  }
+  
+  //TODO
+  public async cancelOrder(tokenSymbol: string, orderId: number): Promise<any> {
+    console.log(tokenSymbol, orderId);
+    return new Promise(resolve => resolve('resolution'));
+  }
+
 }

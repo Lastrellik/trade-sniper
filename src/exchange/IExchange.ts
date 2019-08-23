@@ -12,4 +12,6 @@ export interface IExchange {
   limitBuy(amountOfToken: number, bidRate: number, tokenSymbol: string): Promise<any>;
   marketSell(amountOfToken: number, tokenSymbol: string): Promise<any>;
   limitSell(amountOfToken: number, askRate: number, tokenSymbol: string): Promise<any>;
+  getOrderStatus(tokenSymbol: string, orderId: number): Promise<any>;
+  cancelOrder(tokenSymbol: string, orderId: number): Promise<any>;
 }
