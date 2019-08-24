@@ -36,6 +36,7 @@ import { IExchange } from './exchange/IExchange'; export class Strategy { privat
     //const formattedBuyPrice: number = +(buyPricePlusPercent * .5).toFixed(8);
     console.log('formattedBuyPrice', formattedBuyPrice);
     const amountOfTokenToBuy: number = await this.exchange.calculateAmountOfTokenToBuy(btcBalance, formattedBuyPrice);
+    console.log('amountOfTokenToBuy', amountOfTokenToBuy);
     this.exchange.limitBuy(amountOfTokenToBuy, formattedBuyPrice, tokenSymbol).then(async response => {
       const orderId = response.orderId;
       const confirmedBuyPrice = +response.price;

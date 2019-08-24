@@ -115,6 +115,7 @@ export class BinanceExchange implements IExchange {
     return new Promise((resolve, reject) => {
       this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, bidRate, {type: 'LIMIT'}, (error, response) => {
         if(error) {
+          console.log('Error in limit buy', error);
           reject(error);
         }
         resolve(response);
