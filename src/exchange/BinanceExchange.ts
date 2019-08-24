@@ -37,7 +37,7 @@ export class BinanceExchange implements IExchange {
 
   public async getTokenBuyPrice(btcAmount: number, tokenSymbol: string): Promise<number> {
     return new Promise((resolve, reject) => {
-      this.binance.depth(tokenSymbol.toUpperCase() + 'BTC', (error, json) => {
+      this.binance.depth(tokenSymbol.toUpperCase() + 'BTC', async (error, json) => {
         if(error) {
           reject(error);
         }
@@ -112,10 +112,11 @@ export class BinanceExchange implements IExchange {
   }
 
   public async limitBuy(amountOfToken: number, bidRate: number, tokenSymbol: string): Promise<any> {
+    const formattedBidRate = bidRate.toFixed(await this.getTickSize(tokenSymbol));
     return new Promise((resolve, reject) => {
-      this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, bidRate, {type: 'LIMIT'}, (error, response) => {
+      this.binance.buy(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, formattedBidRate, {type: 'LIMIT'}, (error, response) => {
         if(error) {
-          console.log('Error in limit buy', error);
+          console.log('Error in limit buy', error.body);
           reject(error);
         }
         resolve(response);
@@ -136,15 +137,17 @@ export class BinanceExchange implements IExchange {
   }
 
   public async limitSell(amountOfToken: number, askRate: number, tokenSymbol: string): Promise<any> {
-    console.log(`Limit selling ${Math.floor(amountOfToken)} of ${tokenSymbol} with askRate of ${askRate}`);
-    this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', Math.floor(amountOfToken), askRate, {type: 'LIMIT'}, (error, response) => {
-      if(error) {
-        console.log(error.body);
-      }
-      if(response !== null) {
-        console.log(response);
+    const formattedAskRate = askRate.toFixed(await this.getTickSize(tokenSymbol));
+    console.log(`Limit selling ${Math.floor(amountOfToken)} of ${tokenSymbol} with askRate of ${formattedAskRate}`);
+    return new Promise((resolve, reject) => {
+      this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', Math.floor(amountOfToken), formattedAskRate, {type: 'LIMIT'}, (error, response) => {
+        if(error) {
+          console.log('Issue with limit sell', error.body)
+          reject(error);
+        }
         console.log('Limit sell successful');
-      }     
+        resolve(response);
+      });
     });
   }
 
@@ -167,6 +170,20 @@ export class BinanceExchange implements IExchange {
         }
         resolve(response);
       })
+    });
+  }
+
+  private async getTickSize(symbol: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.binance.exchangeInfo((error, data) => {
+        if(error) {
+          console.log('Error getting tick size');
+          reject(error);
+        }
+        const tickSize = data.symbols.filter(x => x.symbol === symbol.toUpperCase() + 'BTC')[0].filters.filter(x => x.filterType === 'PRICE_FILTER')[0].tickSize;
+        const precision = Math.log10(1 / +tickSize);
+        resolve(precision);
+      });
     });
   }
 
