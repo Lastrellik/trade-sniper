@@ -43,12 +43,42 @@ import { IExchange } from './exchange/IExchange'; export class Strategy { privat
         await this.exchange.cancelOrder(tokenSymbol, orderId);
         process.exit();
       }
+      console.log('response.fills', response.fills);
       const confirmedBuyPrice = Math.max(response.fills.map(x => +x.price));
       console.log('confirmedBuyPrice', confirmedBuyPrice);
       const amountOfTokensInWallet: number = await this.exchange.getAccountTokenBalance(tokenSymbol);
       const sellPrice: number = +(confirmedBuyPrice * (1 + (targetGainPercent / 100)));
       console.log('sellPrice', sellPrice)
-      await this.exchange.limitSell(amountOfTokensInWallet, sellPrice, tokenSymbol);
+      const sellResponse = await this.exchange.limitSell(amountOfTokensInWallet, sellPrice, tokenSymbol);
+      const sellOrderId = sellResponse.orderId;
+      let maxPriceAfterSell = confirmedBuyPrice;
+      const stopLossPercent = 3;
+      for(let i = 0; i < 3000000; i++) {
+        await new Promise(resolve => {
+          setTimeout(resolve, 1000);
+        })
+        await this.exchange.preloadPrices();
+        const newPrice = this.exchange.getPreloadedTokenBuyPrice(tokenSymbol);
+        console.log(newPrice + ' out of ' + sellPrice + ' ' + (100 * newPrice) / sellPrice);
+        if(newPrice > maxPriceAfterSell) {
+          console.log('new max price! ' + newPrice + ' goal price: ' + sellPrice);
+          maxPriceAfterSell = newPrice;
+          continue;
+        }
+        if((newPrice / maxPriceAfterSell) * 100 < 100 - stopLossPercent) {
+          //cancel the order
+          console.log('Price dropped below stop loss percent. Aborting limit sell.');
+          await this.exchange.cancelOrder(tokenSymbol, sellOrderId);
+          const amountOfTokensInWallet: number = await this.exchange.getAccountTokenBalance(tokenSymbol);
+          await this.exchange.marketSell(amountOfTokensInWallet, tokenSymbol);
+          break;
+        }
+        const sellOrderStatus = (await this.exchange.getOrderStatus(tokenSymbol, sellOrderId)).status;
+        if(sellOrderStatus !== 'NEW') {
+          console.log('Sell order filled! Pump Successful!');
+          break;
+        }
+      }
     })
   }
 

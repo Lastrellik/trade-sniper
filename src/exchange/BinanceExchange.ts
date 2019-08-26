@@ -125,14 +125,18 @@ export class BinanceExchange implements IExchange {
   }
 
   public async marketSell(amountOfToken: number,  tokenSymbol: string) {
-    console.log(`market selling ${amountOfToken} of ${tokenSymbol}`)
-    this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', amountOfToken, 0, {type: 'MARKET'}, (error, response) => {
-      if(error) {
-        console.log(error.body);
-      }
-      if(response !== null && response !== {}) {
-        console.log('market sell successful');
-      }     
+    const adjustedAmountOfToken = Math.floor(amountOfToken);
+    console.log(`market selling ${adjustedAmountOfToken} of ${tokenSymbol}`)
+    return new Promise((resolve, reject) => {
+      this.binance.sell(tokenSymbol.toUpperCase() + 'BTC', adjustedAmountOfToken, 0, {type: 'MARKET'}, (error, response) => {
+        if(error) {
+          console.log('Error with market sell', error.body);
+          reject(error);
+        }
+        console.log('Market sell successful');
+        resolve(response);
+      });
+
     });
   }
 
