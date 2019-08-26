@@ -36,8 +36,6 @@ import { IExchange } from './exchange/IExchange'; export class Strategy { privat
     this.exchange.limitBuy(amountOfTokenToBuy, buyPricePlusPercent, tokenSymbol).then(async response => {
       const orderId = response.orderId;
       //console.log('limit buy response', response)
-      const confirmedBuyPrice = +response.fills[0].price;
-      console.log('confirmedBuyPrice', confirmedBuyPrice);
       const orderStatus = (await this.exchange.getOrderStatus(tokenSymbol, orderId)).status;
       console.log('orderStatus', orderStatus);
       if(orderStatus !== 'FILLED') {
@@ -45,6 +43,8 @@ import { IExchange } from './exchange/IExchange'; export class Strategy { privat
         await this.exchange.cancelOrder(tokenSymbol, orderId);
         process.exit();
       }
+      const confirmedBuyPrice = Math.max(response.fills.map(x => +x.price));
+      console.log('confirmedBuyPrice', confirmedBuyPrice);
       const amountOfTokensInWallet: number = await this.exchange.getAccountTokenBalance(tokenSymbol);
       const sellPrice: number = +(confirmedBuyPrice * (1 + (targetGainPercent / 100)));
       console.log('sellPrice', sellPrice)
