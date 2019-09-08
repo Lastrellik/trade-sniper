@@ -45,6 +45,59 @@ import { IExchange } from './exchange/IExchange'; export class Strategy { privat
       }
       console.log('response.fills', response.fills);
       //const confirmedBuyPrice = Math.max(response.fills.map(x => +(x.price)));
+      //const confirmedBuyPrice = +response.fills[0].price;
+      const confirmedBuyPrice = +response.fills[response.fills.length - 1].price;
+      console.log('confirmedBuyPrice', confirmedBuyPrice);
+      const amountOfTokensInWallet: number = await this.exchange.getAccountTokenBalance(tokenSymbol);
+      const sellPrice: number = +(confirmedBuyPrice * (1 + (targetGainPercent / 100)));
+      console.log('sellPrice', sellPrice)
+      const sellResponse = await this.exchange.limitSell(amountOfTokensInWallet, sellPrice, tokenSymbol);
+      const sellOrderId = sellResponse.orderId;
+      let maxPriceAfterSell = confirmedBuyPrice;
+      let previousPrice = maxPriceAfterSell;
+      for(let i = 0; i < 3000000; i++) {
+        await new Promise(resolve => {
+          setTimeout(resolve, 1000);
+        })
+        await this.exchange.preloadPrices();
+        const newPrice = this.exchange.getPreloadedTokenBuyPrice(tokenSymbol);
+        if(newPrice === previousPrice) {
+          continue;
+        }
+        previousPrice = newPrice;
+        console.log(tokenSymbol + ' ' + newPrice + ' out of ' + sellPrice + ' %' + Math.floor((100 * newPrice) / sellPrice));
+        if(newPrice > maxPriceAfterSell) {
+          console.log('new max price! ' + newPrice + ' goal price: ' + sellPrice);
+          maxPriceAfterSell = newPrice;
+          continue;
+        }
+        const sellOrderStatus = (await this.exchange.getOrderStatus(tokenSymbol, sellOrderId)).status;
+        if(sellOrderStatus !== 'NEW') {
+          console.log('Sell order filled! Pump Successful!');
+          break;
+        }
+      }
+    })
+  }
+
+  public async limitBuyLimitSellStopLoss(btcBalance: number, tokenSymbol: string, buyingThresholdPercent: number, targetGainPercent: number) {
+    const buyPrice: number = await this.exchange.getPreloadedTokenBuyPrice(tokenSymbol);
+    console.log('buyPrice', buyPrice);
+    const buyPricePlusPercent: number = buyPrice * (1 + (buyingThresholdPercent / 100));
+    const amountOfTokenToBuy: number = await this.exchange.calculateAmountOfTokenToBuy(btcBalance, buyPricePlusPercent);
+    console.log('amountOfTokenToBuy', amountOfTokenToBuy);
+    this.exchange.limitBuy(amountOfTokenToBuy, buyPricePlusPercent, tokenSymbol).then(async response => {
+      const orderId = response.orderId;
+      //console.log('limit buy response', response)
+      const orderStatus = (await this.exchange.getOrderStatus(tokenSymbol, orderId)).status;
+      console.log('orderStatus', orderStatus);
+      if(orderStatus !== 'FILLED') {
+        console.log('Order did not fill. Aborting.');
+        await this.exchange.cancelOrder(tokenSymbol, orderId);
+        process.exit();
+      }
+      console.log('response.fills', response.fills);
+      //const confirmedBuyPrice = Math.max(response.fills.map(x => +(x.price)));
       const confirmedBuyPrice = +response.fills[0].price;
       console.log('confirmedBuyPrice', confirmedBuyPrice);
       const amountOfTokensInWallet: number = await this.exchange.getAccountTokenBalance(tokenSymbol);
