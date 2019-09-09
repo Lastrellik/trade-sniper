@@ -29,18 +29,19 @@ import { IExchange } from './exchange/IExchange'; export class Strategy { privat
 
   public async limitBuyLimitSell(btcBalance: number, tokenSymbol: string, buyingThresholdPercent: number, targetGainPercent: number) {
     const buyPrice: number = await this.exchange.getPreloadedTokenBuyPrice(tokenSymbol);
-    console.log('buyPrice', buyPrice);
+    console.log('preloadedBuyPrice', buyPrice);
     const buyPricePlusPercent: number = buyPrice * (1 + (buyingThresholdPercent / 100));
     const amountOfTokenToBuy: number = await this.exchange.calculateAmountOfTokenToBuy(btcBalance, buyPricePlusPercent);
     console.log('amountOfTokenToBuy', amountOfTokenToBuy);
     this.exchange.limitBuy(amountOfTokenToBuy, buyPricePlusPercent, tokenSymbol).then(async response => {
       const orderId = response.orderId;
-      //console.log('limit buy response', response)
-      const orderStatus = (await this.exchange.getOrderStatus(tokenSymbol, orderId)).status;
+      let orderStatus = (await this.exchange.getOrderStatus(tokenSymbol, orderId)).status;
       console.log('orderStatus', orderStatus);
       if(orderStatus !== 'FILLED') {
-        console.log('Order did not fill. Aborting.');
         await this.exchange.cancelOrder(tokenSymbol, orderId);
+      }
+      if(orderStatus === 'NEW') {
+        console.log('Order did not fill. Aborting.');
         process.exit();
       }
       console.log('response.fills', response.fills);
@@ -92,8 +93,10 @@ import { IExchange } from './exchange/IExchange'; export class Strategy { privat
       const orderStatus = (await this.exchange.getOrderStatus(tokenSymbol, orderId)).status;
       console.log('orderStatus', orderStatus);
       if(orderStatus !== 'FILLED') {
-        console.log('Order did not fill. Aborting.');
         await this.exchange.cancelOrder(tokenSymbol, orderId);
+      }
+      if(orderStatus === 'NEW') {
+        console.log('Order did not fill. Aborting.');
         process.exit();
       }
       console.log('response.fills', response.fills);
