@@ -1,77 +1,31 @@
-[![TypeScript version][ts-badge]][typescript-34]
-[![Node.js version][nodejs-badge]][nodejs]
-[![APLv2][license-badge]][LICENSE]
-[![Build Status][travis-badge]][travis-ci]
+# Trade Sniper
+A tool to assist with the rapid buying and selling of crypto on various exchanges. Trade Sniper currently supports Binance, Bittrex, and Yobit. This product is in the alpha stage of development and its successful use is not guaranteed. Use at your own risk.
 
-[![Donate][donate-badge]][donate]
+## How it works
+Trade Sniper is a console application that uses the api keys of the exchange of your choice in order to quickly place buy and sell orders without the need to use their website user interface. It starts by pre-loading all the current prices of each token available for trade on the exchange into local memory to allow for faster trading. It then asks for the bitcoin balance you would like to play with, the threshold percentage before aborting the buy (more on this below), the target percent you would like to gain, and the symbol of the token you would like to buy. Immediately after entering the symbol of the token, Trade Sniper places a limit buy order for your threshold percent above the preloaded price of the token. If the order doesn't immediately fill, it cancels the order at no cost to the user. If the order does fill, Trade Sniper immediately places a limit sell order for the target percent above the confirmed buy price for the total amount of the token that was purchased. It then outputs the current price of the token as the market value changes and immediately lets the user know once the sell order fills.
 
-# node-typescript-boilerplate
+## Prerequisites
+1. [NodeJS](https://nodejs.org/en/download/) version v10.16.0 or greater
+2. [NPM](https://www.npmjs.com/get-npm) 
+3. [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+4. Generate and obtain your api key and secret key from the exchange of your choice:
+    - [Binance](https://www.binance.com/en/support/articles/360002502072)
+    - [Bittrex](https://bittrex.zendesk.com/hc/en-us/articles/360031921872-How-to-create-an-API-key-)
+    - [Yobit](https://helpdesk.bitsgap.com/support/solutions/articles/36000028876-how-can-i-create-an-api-key-for-yobit-net-)
 
-Minimalistic boilerplate to jump-start a [Node.js][nodejs] project in [TypeScript][typescript] [3.4][typescript-34].
-
-What's included:
-
-+ [TypeScript][typescript] [3.4][typescript-34],
-+ [TSLint][tslint] with [Microsoft rules][tslint-microsoft-contrib],
-+ [Jest][jest] unit testing and code coverage,
-+ Type definitions for Node.js and Jest,
-+ [Prettier][prettier] to enforce a consistent code style,
-+ [NPM scripts for common operations](#available-scripts),
-+ a simple example of TypeScript code and unit test,
-+ .editorconfig for consistent file format.
+## Installation
+1. Clone the repository with `git clone https://github.com/lastrellik/trade-sniper.git && cd trade-sniper`
+2. Install the dependencies with `npm install`
+3. Verify the installation with `npm start -- -V`
 
 ## Quick start
-
-This project is intended to be used with the latest Active LTS release of [Node.js][nodejs]. To start, just clone the repository with following commands:
-
-```sh
-git clone https://github.com/jsynowiec/node-typescript-boilerplate
-cd node-typescript-boilerplate
-npm install
-```
-
-or download and unzip current `master` branch:
-
-```sh
-wget https://github.com/jsynowiec/node-typescript-boilerplate/archive/master.zip -O node-typescript-boilerplate
-unzip node-typescript-boilerplate.zip && rm node-typescript-boilerplate.zip
-```
-
-Now start adding your code in the `src` and unit tests in the `__tests__` directories. Have fun and build amazing things 🚀
-
-### Unit tests in JavaScript
-
-Writing unit tests in TypeScript can sometimes be troublesome and confusing. Especially when mocking dependencies and using spies.
-
-This is **optional**, but if you want to learn how to write JavaScript tests for TypeScript modules, read the [corresponding wiki page][wiki-js-tests].
-
-## Available scripts
-
-+ `clean` - remove coverage data, Jest cache and transpiled files,
-+ `build` - transpile TypeScript to ES6,
-+ `build:watch` - interactive watch mode to automatically transpile source files,
-+ `lint` - lint source files and tests,
-+ `test` - run tests,
-+ `test:watch` - interactive watch mode to automatically re-run tests
-
-## License
-Licensed under the APLv2. See the [LICENSE](https://github.com/jsynowiec/node-typescript-boilerplate/blob/master/LICENSE) file for details.
-
-[ts-badge]: https://img.shields.io/badge/TypeScript-3.4-blue.svg
-[nodejs-badge]: https://img.shields.io/badge/Node.js->=%2010.13-blue.svg
-[nodejs]: https://nodejs.org/dist/latest-v10.x/docs/api/
-[travis-badge]: https://travis-ci.org/jsynowiec/node-typescript-boilerplate.svg?branch=master
-[travis-ci]: https://travis-ci.org/jsynowiec/node-typescript-boilerplate
-[typescript]: https://www.typescriptlang.org/
-[typescript-34]: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html
-[license-badge]: https://img.shields.io/badge/license-APLv2-blue.svg
-[license]: https://github.com/jsynowiec/node-typescript-boilerplate/blob/master/LICENSE
-
-[donate-badge]: https://img.shields.io/badge/☕-buy%20me%20a%20coffee-46b798.svg
-[donate]: https://paypal.me/jaqb/5eur
-
-[jest]: https://facebook.github.io/jest/
-[tslint]: https://palantir.github.io/tslint/
-[tslint-microsoft-contrib]: https://github.com/Microsoft/tslint-microsoft-contrib
-[wiki-js-tests]: https://github.com/jsynowiec/node-typescript-boilerplate/wiki/Unit-tests-in-plain-JavaScript
-[prettier]: https://prettier.io
+1. From the project directory, run `npm start -- -k <your api key> -s <your secret key> -e <name of the exchange>`
+    - For more information, run `npm start -- -h`
+2. Follow the on-screen instructions to answer the following questions:
+    1. Enter the BTC balance you would like to play with
+    2. Enter the threshold percentage before aborting buy
+        - 10, 15, etc
+    3. Enter the target percent you would like to gain
+        - 2, 5, etc
+    4. Enter the symbol of the token to buy
+        - lrc, pink, etc
