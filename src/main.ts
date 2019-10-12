@@ -41,7 +41,7 @@ const questions = [
   {
     type: 'number',
     name: 'threshold',
-    message: 'Enter the threshold percentage before aborting pump'
+    message: 'Enter the threshold percentage before aborting order'
   },
   {
     type: 'number',
@@ -51,7 +51,7 @@ const questions = [
   {
     type: 'input',
     name: 'symbol',
-    message: 'Enter the symbol of the token to pump'
+    message: 'Enter the symbol of the token'
   }
 ]
 

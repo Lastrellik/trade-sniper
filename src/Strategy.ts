@@ -74,7 +74,7 @@ import { IExchange } from './exchange/IExchange'; export class Strategy { privat
         }
         const sellOrderStatus = (await this.exchange.getOrderStatus(tokenSymbol, sellOrderId)).status;
         if(sellOrderStatus !== 'NEW') {
-          console.log('Sell order filled! Pump Successful!');
+          console.log('Sell order filled!');
           break;
         }
       }
@@ -137,7 +137,7 @@ import { IExchange } from './exchange/IExchange'; export class Strategy { privat
         }
         const sellOrderStatus = (await this.exchange.getOrderStatus(tokenSymbol, sellOrderId)).status;
         if(sellOrderStatus !== 'NEW') {
-          console.log('Sell order filled! Pump Successful!');
+          console.log('Sell order filled!');
           break;
         }
       }
