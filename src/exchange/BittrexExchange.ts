@@ -13,9 +13,24 @@ export class BittrexExchange implements IExchange {
     this.apiSecret = apiSecret;
   }
 
-  //TODO
   public async preloadPrices(): Promise<void> {
-    return new Promise(resolve => resolve())
+    const hostUrl = 'https://api.bittrex.com/v3/markets/tickers';
+    return new Promise((resolve, reject) => {
+      axios.get(hostUrl).then(data => {
+        if(data.error){
+          reject();
+        }
+        const tokens = data.data;
+        this.prices = {};
+        for(let i = 0; i < tokens.length; i++) {
+          const tokenSymbol = tokens[i].symbol.replace('-', '');
+          const price = tokens[i].askRate;
+          this.prices[tokenSymbol] = price;
+        }
+        console.log(this.prices);
+        resolve();
+      });
+    });
   }
 
   public getPreloadedTokenBuyPrice(tokenSymbol: string): number {
